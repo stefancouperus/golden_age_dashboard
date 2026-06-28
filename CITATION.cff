@@ -1,0 +1,29 @@
+cff-version: 1.2.0
+message: "If you use this dashboard, please cite the software using the metadata below."
+title: "'Golden Age' Politics Dashboard"
+type: software
+authors:
+  - given-names: Stefan
+    family-names: Couperus
+    affiliation: University of Groningen
+    orcid: "https://orcid.org/0000-0002-2387-1453"
+  - given-names: Martijn
+    family-names: Schoonvelde
+    affiliation: University of Groningen
+abstract: >-
+  Interactive R Shiny dashboard for exploring how Dutch members of parliament
+  used the Gouden Eeuw (Golden Age) as a mnemonic trope between 1945 and 2024.
+  It presents 447 coded speeches and supports exploration by period, party,
+  speaker, temporal grammar, and symbolic work.
+version: 1.0.0
+date-released: 2026-06-28
+license: MIT
+repository-code: "https://github.com/stefancouperus/golden_age_dashboard"
+url: "https://stefancouperus.shinyapps.io/golden-age-dashboard/"
+keywords:
+  - Dutch parliament
+  - Golden Age
+  - Gouden Eeuw
+  - political memory
+  - parliamentary speech
+  - R Shiny

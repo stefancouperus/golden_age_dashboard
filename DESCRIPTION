@@ -1,0 +1,31 @@
+Type: Project
+Package: goldenAgeDashboard
+Title: Golden Age Politics Dashboard
+Version: 1.0.0
+Authors@R: c(
+    person("Stefan", "Couperus", role = c("aut", "cre"),
+           comment = c(ORCID = "0000-0002-2387-1453")),
+    person("Martijn", "Schoonvelde", role = "aut")
+  )
+Description: Interactive Shiny dashboard for exploring how Dutch members of
+    parliament used the Gouden Eeuw (Golden Age) as a mnemonic trope between
+    1945 and 2024. The dashboard presents 447 coded speeches and supports
+    exploration by period, party, speaker, temporal grammar, and symbolic work.
+Depends:
+    R (>= 4.3)
+Imports:
+    bslib,
+    dplyr,
+    DT,
+    ggplot2,
+    htmltools,
+    httr,
+    jsonlite,
+    legislatoR,
+    plotly,
+    rvest,
+    shiny,
+    stringr,
+    xml2
+Encoding: UTF-8
+License: MIT + file LICENSE

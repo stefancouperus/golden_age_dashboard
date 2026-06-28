@@ -1,0 +1,12 @@
+.DS_Store
+.Rhistory
+.RData
+.Ruserdata
+.Rproj.user/
+renv/library/
+renv/staging/
+rsconnect/
+draftpaper.pdf
+www/draft_paper.html
+*_cache.rds
+*.log
