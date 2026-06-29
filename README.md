@@ -71,8 +71,7 @@ The broader reproduction materials are maintained separately at
 
 ## Citation
 
-Citation metadata are provided in `CITATION.cff`. A DOI will be added after the
-first GitHub release is archived by Zenodo.
+Citation metadata are provided in `CITATION.cff`. DOI to be found here: https://zenodo.org/records/21003433
 
 ## License
 
