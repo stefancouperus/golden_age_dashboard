@@ -30,6 +30,13 @@ legend,
 .speech-card > p {
   font-size: 1rem;
 }
+.result-capacity {
+  display: block;
+  margin-top: 4px;
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  color: #576872;
+}
 .reader-heading > p:not(.eyebrow) {
   font-size: 0.875rem;
 }

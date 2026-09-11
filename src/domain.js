@@ -147,6 +147,8 @@ export function prepareSpeeches(speeches) {
         s.originalSpeaker,
         s.sourceSpeaker,
         s.partyLabel,
+        s.capacity,
+        s.governmentPosition,
         s.text,
         s.tgRationale,
         s.swRationale,

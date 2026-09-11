@@ -77,6 +77,12 @@ test("website uses the exact updated research snapshot, with all texts and ident
       biography: "speaker_profile_url",
       date: "date",
       role: "role",
+      capacity: "speaking_capacity",
+      governmentPosition: "government_position_nl",
+      governmentPositionStart: "government_position_start",
+      governmentPositionEnd: "government_position_end",
+      governmentMetadataSource: "government_metadata_source",
+      partyRef: "party_ref",
       scopeNote: "sample_scope_note",
       originalSpeaker: "speaker_original",
       sourceSpeaker: "speaker_source_label",
@@ -134,12 +140,25 @@ test("role and affiliation stay separate; Verbeek remains with his explicit note
   );
   assert.equal(
     filterSpeeches(speeches, { ...INITIAL, parties: ["unknown"] }).length,
-    69,
+    0,
   );
   assert.equal(
     filterSpeeches(speeches, { ...INITIAL, parties: ["groenlinks"] }).length,
     9,
   );
+  const government = filterSpeeches(speeches, { ...INITIAL, roles: ["government"] });
+  assert.equal(new Set(government.map((s) => s.speakerId)).size, 47);
+  assert.deepEqual(count("party", government), {
+    chu: 4, pvda: 15, kvp: 3, arp: 1, vvd: 29, ppr: 5, cda: 10, d66: 3,
+  });
+  for (const s of government) {
+    assert(s.capacity && s.governmentPosition);
+    assert(s.governmentPositionStart <= s.date && s.date < s.governmentPositionEnd);
+    assert.equal(s.governmentMetadataSource, s.biography);
+  }
+  const wiebes = government.filter((s) => s.speaker === "Eric Wiebes");
+  assert.equal(wiebes.find((s) => s.date === "2015-03-05").capacity, "State Secretary for Finance");
+  assert.equal(wiebes.find((s) => s.date === "2019-04-02").capacity, "Minister of Economic Affairs and Climate Policy");
   const senator = filterSpeeches(speeches, { ...INITIAL, roles: ["senator"] });
   assert.equal(senator[0].speaker, "Jan Verbeek");
   assert.match(senator[0].scopeNote, /retained provisionally/);

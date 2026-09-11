@@ -8,11 +8,14 @@ df <- read_csv(input)
 translations <- read_csv("df_snippets_translated.csv")
 source_manifest <- jsonlite::fromJSON("data/research/source.json", simplifyVector = FALSE)
 clean <- function(x) ifelse(is.na(x), "", x)
-required <- c("speech_id", "speaker", "speaker_person_id", "speaker_profile_url", "speaker_original", "speaker_source_label", "sample_scope_note", "role", "party_ref", "text", "date", "temporal_grammar_code", "symbolic_work_code")
+required <- c("speech_id", "speaker", "speaker_person_id", "speaker_profile_url", "speaker_original", "speaker_source_label", "sample_scope_note", "role", "party_ref", "text", "date", "temporal_grammar_code", "symbolic_work_code", "speaking_capacity", "government_position_nl", "government_position_start", "government_position_end", "government_metadata_source")
 stopifnot(all(required %in% names(df)), nrow(df) == 447L, !anyDuplicated(df$speech_id), !anyDuplicated(translations$speech_id))
 stopifnot(length(unique(df$speaker_person_id)) == 244L, all(nzchar(df$speaker_person_id)), all(grepl("^https://www[.]parlement[.]com/biografie/", df$speaker_profile_url)))
 stopifnot(all(df$include_for_coding == "TRUE"), all(df$temporal_grammar_code %in% paste0("TG", 1:4)), all(df$symbolic_work_code %in% paste0("SW", 1:5)))
 stopifnot(all(df$date >= "1945-01-01" & df$date <= "2024-12-31"))
+government <- df$role == "government"
+stopifnot(sum(government) == 70L, all(nzchar(clean(df$party_ref))), all(nzchar(clean(df$speaking_capacity[government]))), all(nzchar(clean(df$government_position_nl[government]))))
+stopifnot(all(df$government_position_start[government] <= df$date[government]), all(df$date[government] < df$government_position_end[government]), all(df$government_metadata_source[government] == df$speaker_profile_url[government]))
 translation_index <- match(df$speech_id, translations$speech_id)
 stopifnot(!anyNA(translation_index))
 translations <- translations[translation_index, ]
@@ -56,6 +59,7 @@ speeches <- lapply(seq_len(nrow(df)), function(i) list(
   originalSpeaker = df$speaker_original[[i]], sourceSpeaker = df$speaker_source_label[[i]],
   party = party_key[[i]], partyLabel = unname(party_labels[party_key[[i]]]), partyRef = clean(df$party_ref[[i]]),
   role = df$role[[i]], capacity = clean(df$speaking_capacity[[i]]), group = clean(df$parliamentary_group_as_recorded[[i]]),
+  governmentPosition = clean(df$government_position_nl[[i]]), governmentPositionStart = clean(df$government_position_start[[i]]), governmentPositionEnd = clean(df$government_position_end[[i]]), governmentMetadataSource = clean(df$government_metadata_source[[i]]),
   scopeNote = clean(df$sample_scope_note[[i]]), source = source_link(df$speech_id[[i]], df$source_file[[i]]),
   text = df$text[[i]], tg = df$temporal_grammar_code[[i]], sw = df$symbolic_work_code[[i]],
   tgRationale = clean(df$temporal_grammar_rationale[[i]]), swRationale = clean(df$symbolic_work_rationale[[i]]),

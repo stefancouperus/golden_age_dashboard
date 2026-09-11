@@ -506,6 +506,9 @@ function App() {
                               <span>{s.partyLabel}</span>
                             </span>
                             <strong>{s.speaker}</strong>
+                            {s.role === "government" && s.capacity && (
+                              <span className="result-capacity">{s.capacity}</span>
+                            )}
                             <p lang="nl">
                               {s.evidence.tg[0].nl.slice(0, 175)}
                               {s.evidence.tg[0].nl.length > 175 ? "…" : ""}

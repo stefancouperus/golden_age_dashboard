@@ -1,5 +1,11 @@
 # Speaker, role and party metadata audit
 
+This page records the initial identity and role repairs. The later
+[government metadata review](government-metadata.md) fills the 69 affiliations
+that remained missing and supplies dated primary positions for all 70
+government contributions. The earlier ledgers are retained as historical
+provenance; the static dashboard reads the enriched research CSV directly.
+
 Reviewed 11 September 2026, before migration from Shiny to GitHub Pages.
 
 The nine records initially displayed as government speakers because they lacked

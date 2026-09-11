@@ -43,7 +43,8 @@ test("research views render populated, exceptional and empty selections", async 
     });
     assert.match(filters, /Temporal grammar/);
     assert.match(filters, /Speaking role/);
-    assert.match(filters, /No affiliation recorded/);
+    assert.match(filters, /Party affiliation/);
+    assert.doesNotMatch(filters, /No affiliation recorded/);
     for (const code of Object.values(CODES)) {
       const badge = render(Code, { id: code.id });
       assert(badge.includes(code.meaning), code.id);
@@ -85,6 +86,17 @@ test("research views render populated, exceptional and empty selections", async 
     assert.match(reader, /All evidence for both codes is highlighted/);
     assert.match(reader, /--evidence-tg:/);
     assert.match(reader, /--evidence-sw:/);
+    const minister = speeches.find((s) => s.speaker === "Eric Wiebes" && s.date === "2019-04-02");
+    const ministerReader = render(Reader, {
+      speech: minister,
+      copyLink: update,
+      filterSpeaker: update,
+      clearForSpeech: update,
+    });
+    assert.match(ministerReader, /VVD/);
+    assert.match(ministerReader, /Government speaker/);
+    assert.match(ministerReader, /Minister of Economic Affairs and Climate Policy/);
+    assert.match(ministerReader, /Minister van Economische Zaken en Klimaat/);
     const overlapping = speeches.find((speech) =>
       textSegments(speech.text, evidenceRanges(speech)).some(
         (part) => part.families.includes("tg") && part.families.includes("sw"),

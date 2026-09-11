@@ -11,26 +11,29 @@ exporter does not load the legacy RDS, metadata repair ledger, or biography
 matching code. The website publishes only the JSON needed by the explorer; the direct CSV download has been removed.
 
 - Research repository: https://github.com/hjmschoonvelde/gouden_eeuw_project
-- Commit: `4a977ca124d3f9e2fdfa4391e4443c04f2bb569c`
+- Commit: `6bc139b3d9068f3640faa4e05ca8afc0c1f185bf`
 - File: `data/derived/ge_final_45_24.csv`
-- SHA-256: `98eeaf07539ee5799fd6e60a19fc3ee5cd9e2640cd7e853c09a2d8ae8e83cc68`
+- SHA-256: `efc32f7fca01008eb8e57ab5e199b8775d2fcaceef89ec534c3c5aa748e2806f`
 - 447 contributions, 244 reviewed people, and 1,870 paired evidence fragments.
 - Speaking roles: 375 Tweede Kamer members, 70 government contributions,
   one visiting MEP, and one provisionally retained Eerste Kamer contribution.
 
-Names, biography URLs, original labels, role and scope notes come from that
+Names, biography URLs, original labels, role, dated government positions and scope notes come from that
 updated dataset. Dutch speech text and coding assignments are unchanged.
 Precomputed evidence translations join by speech ID and never provide identity
 metadata. `gl` and `groenlinks` share the displayed GroenLinks filter; original
-`party_ref` values remain in the source snapshot and website JSON. Missing recorded affiliation remains
-separate from government role. Verbeek’s agreed provisional-retention note is
+`party_ref` values come directly from the source snapshot. The
+[government metadata review](government-metadata.md) supplies verified affiliations
+for all 70 government contributions by 47 speakers and dated primary portfolios
+for every one. Government role remains separate from affiliation. Verbeek’s agreed provisional-retention note is
 visible in the reader and preserved in the website data.
 
 ## Interface and interpretation
 
 Shared filters apply to the timeline, results and coding matrix. Multiple values within a field use OR; different fields use AND. Facet
 counts reflect the other filters. Search covers Dutch full text, evidence in
-both languages, reviewed/original names, party labels and coding rationales.
+both languages, reviewed/original names, party labels, English/Dutch government
+positions and coding rationales.
 Quoted phrases are supported.
 
 The matrix includes every combination of four TG and five SW codes. Counts and
@@ -71,7 +74,10 @@ assets and hash state support both project-path and future custom-domain hosting
 
 - Exact upstream CSV digest and absence of the retired public CSV download.
 - Every speech’s full text, identity, biography, role, original labels, codes,
-  rationales and scope note compared with the updated research CSV.
+  rationales, affiliation, dated government position and scope note compared
+  with the updated research CSV.
+- Complete government affiliation coverage, office dates matched to speech dates,
+  and changed portfolios for Eric Wiebes; party and speaking-role filters stay independent.
 - Every Dutch/English evidence pair compared with the stored translations.
 - All 1,870 Dutch evidence fragments located in their unchanged source speeches;
   highlight offsets preserve Unicode, whitespace, quotation marks and full text.

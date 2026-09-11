@@ -21,7 +21,7 @@ specific commit. The website does not apply correction overlays to the old RDS.
 - Find the authors’ University of Groningen profiles and data-request information under About.
 
 Temporal grammar uses four distinct blues; symbolic work uses five amber/orange
-shades. Text labels identify every code. Government role and recorded party
+shades. Text labels identify every code. Government role and party
 are separate filters. Verbeek’s contribution remains included provisionally,
 with its explicit Eerste Kamer scope note.
 
@@ -95,8 +95,11 @@ All evidence pairs must be present. A future change to the analytical sample or
 coding scheme requires reviewing the exporter’s explicit invariants and tests.
 
 `gl` and `groenlinks` are combined under the displayed GroenLinks filter;
-`party_ref` remains unchanged in the source snapshot and website data. Missing affiliation is
-shown as “No affiliation recorded”, independently of speaking role.
+`party_ref` is imported directly from the research snapshot. The
+[government metadata review](docs/government-metadata.md) supplies verified
+affiliations and dated positions for all 70 government contributions by 47
+speakers. English positions appear in the cards and reader; English and Dutch
+positions are searchable. Government role and party affiliation remain separate.
 
 ## Project files
 

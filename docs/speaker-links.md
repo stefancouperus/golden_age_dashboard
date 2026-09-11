@@ -17,9 +17,10 @@ Candidates were found through Parlement.com's [biography search](https://www.par
 The match was reviewed against the contribution date, the corresponding office
 held at that date, and the recorded party where available. Ambiguous surnames
 were resolved using those details and, where needed, the parliamentary record.
-The old biography match was only a hint, not evidence of identity. A minister's
-personal party affiliation is not used to fill a missing contribution-level
-party field.
+The old biography match was only a hint, not evidence of identity. This identity
+review initially left missing government affiliations unchanged. The subsequent
+[government metadata review](government-metadata.md) verifies and fills those
+affiliations at the contribution date, separately from the speaking role.
 
 The 247 distinct member-reference groups resolve to 244 people: Martin Bosma,
 Sandra Beckerman and Tunahan Kuzu each have two member references across corpus

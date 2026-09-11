@@ -221,7 +221,7 @@ export function Filters({
         {SW.map((c) => option("sw", c.id, c.short, c.color))}
       </fieldset>
       <fieldset>
-        <legend>Party / recorded affiliation</legend>
+        <legend>Party affiliation</legend>
         <input
           className="compact-search"
           type="search"
@@ -270,7 +270,7 @@ export function Filters({
         {Object.entries(ROLES).map(([id, label]) => option("roles", id, label))}
       </fieldset>
       <p className="filter-footnote">
-        Option counts reflect the other filters. Affiliation is recorded at the
+        Option counts reflect the other filters. Affiliation refers to the
         contribution date; government role and party affiliation are separate.
       </p>
       <button className="button primary mobile-apply" onClick={closeMobile}>
@@ -651,7 +651,9 @@ export function Reader({
         </p>
         <p className="role-line">
           {ROLES[s.role]}
-          {s.capacity && s.capacity !== ROLES[s.role] ? ` · ${s.capacity}` : ""}
+          {s.capacity && s.capacity !== ROLES[s.role] && (
+            <span title={s.governmentPosition || undefined}> · {s.capacity}</span>
+          )}
         </p>
         {s.group && (
           <p className="role-line">
@@ -869,8 +871,13 @@ export function Information({ navigate, copy }) {
           <p>
             Counts and percentages describe this selected sample. They do not
             measure a party's or a year's rate of Golden Age references in the
-            full parliamentary corpus. Recorded affiliation does not establish
+            full parliamentary corpus. Party affiliation does not establish
             that a speaker represents that party's position.
+          </p>
+          <p>
+            Government speakers’ party affiliations and ministerial or
+            state-secretary positions are verified against Parlement.com for
+            the date of each contribution. Their speaking role remains government.
           </p>
           <OutLink href="https://github.com/hjmschoonvelde/gouden_eeuw_project/blob/main/docs/methodology_extended.md">
             Read the full methodology
