@@ -10,7 +10,7 @@ stopifnot(nrow(fixed) == 447L, identical(fixed$speech_id, raw$speech_id))
 editable <- c("speaker", "role", "party_ref", "member_ref", "function.")
 for (nm in setdiff(names(raw), editable)) stopifnot(identical(fixed[[nm]], raw[[nm]]))
 reviewed <- vapply(ledger$corrections, function(x) x$speech_id, character(1))
-stopifnot(length(reviewed) == 10L)
+stopifnot(length(reviewed) == 11L)
 for (nm in editable) {
   keep <- !raw$speech_id %in% reviewed
   stopifnot(identical(fixed[[nm]][keep], raw[[nm]][keep]))
@@ -28,8 +28,9 @@ stopifnot(
 )
 stopifnot(
   sum(fixed$role == "government") == 70L,
-  sum(fixed$role == "mp") == 376L,
+  sum(fixed$role == "mp") == 375L,
   sum(fixed$role == "mep") == 1L,
+  sum(fixed$role == "senator") == 1L,
   sum(is.na(fixed$party_ref) & fixed$role != "government") == 0L
 )
 
@@ -86,7 +87,7 @@ shiny::testServer(app_env$server, {
   profile_rows <- app_env$df_dash[match(wrong_ids, app_env$df_dash$speech_id), ]
   for (i in seq_len(nrow(profile_rows))) {
     p <- build_speaker_profile(profile_rows[i, ])
-    stopifnot(p$source == "Source-verified metadata correction", p$match_status == "verified")
+    stopifnot(p$source == "Parlement.com", p$match_status == "verified")
   }
 })
-cat("PASS: ten sourced metadata corrections; 447 texts and code assignments preserved; roles, party labels, biographies and app integration verified.\n")
+cat("PASS: eleven sourced metadata corrections; 447 texts and code assignments preserved; roles, party labels, biographies and app integration verified.\n")

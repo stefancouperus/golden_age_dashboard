@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "reviewed_on": "2026-09-11",
-  "scope": "Nine MP-role records with missing party_ref, plus the opposite role error found for Asscher in the government-role consistency check. Original text, evidence, dates, inclusion decisions and analytical codes are retained.",
+  "scope": "Nine MP-role records with missing party_ref, plus the opposite role error found for Asscher in the government-role consistency check. Original text, evidence, dates, inclusion decisions and analytical codes are retained. A subsequent review of all speaker biographies also identified one Eerste Kamer contribution recorded as an MP; its role is corrected to senator without excluding it.",
   "corrections": [
     {
       "speech_id": "nl.proc.sgd.d.194819490000487.3.2",
@@ -91,6 +91,31 @@
       "source_url": "https://zoek.officielebekendmakingen.nl/h-tk-20172018-93-4.html",
       "source_locations": ["Official proceedings: Asscher (PvdA), contribution beginning Voorzitter, heel kort. Ik vind het merkwaardig", "https://parlement.com/biografie/dr-lf-lodewijk-asscher"],
       "reason": "The government-role consistency check found this opposite-direction error. Asscher speaks as a PvdA MP in June 2018; his ministerial office ended in October 2017. The recorded party, speaker, member reference and text are retained."
+    },
+    {
+      "speech_id": "nl.proc.sgd.d.198319840000028.6.15.1",
+      "expected": {
+        "date": "1984-05-01",
+        "speaker": "Verbeek",
+        "role": "mp",
+        "party_ref": "nl.p.vvd",
+        "member_ref": "nl.m.02770"
+      },
+      "updates": {
+        "role": "senator",
+        "speaking_capacity": "Member of the Eerste Kamer; contribution in an Eerste Kamer sitting"
+      },
+      "source_url": "https://resolver.kb.nl/resolve?urn=sgd:mpeg21:19831984:0000028:pdf",
+      "source_locations": [
+        "Official scan, printed page 896 (PDF page 34): chair introduces Verbeek, whose VVD maiden speech begins in the left column; footer identifies Eerste Kamer, 1 mei 1984",
+        "https://www.parlement.com/biografie/jw-jan-verbeek"
+      ],
+      "reason": "The original scan identifies this as Jan Verbeek's maiden speech in the Eerste Kamer. Parlement.com confirms his VVD membership of the Eerste Kamer from September 1983 to June 1999. The record is not a Tweede Kamer MP contribution. Retain its party, member reference, text and analytical inclusion; any exclusion is a separate research-scope decision.",
+      "biography": {
+        "name": "Jan Verbeek",
+        "url": "https://www.parlement.com/biografie/jw-jan-verbeek",
+        "parties": "VVD (at the time of this speech)"
+      }
     }
   ]
 }

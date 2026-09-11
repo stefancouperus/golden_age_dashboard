@@ -22,7 +22,7 @@ packages and start Shiny:
 ```r
 install.packages(c(
   "shiny", "bslib", "ggplot2", "dplyr", "stringr", "DT", "htmltools",
-  "httr", "jsonlite", "legislatoR", "plotly", "rvest", "xml2"
+  "httr", "jsonlite", "plotly"
 ))
 
 shiny::runApp(".")
@@ -42,12 +42,15 @@ shiny::runApp(".")
 - `app.R`: dashboard user interface, data preparation, and server logic.
 - `ge_final_45_24.rds` and `ge_final_45_24.csv`: 447 coded speeches used by the dashboard.
 - `df_snippets_translated.*`: precomputed English translations of coded evidence snippets.
-- `df_final_speaker_bio_map.*`: precomputed speaker metadata used in profile panels.
+- `data/speaker_profiles.json`: reviewed Parlement.com links for all 244 people,
+  with explicit assignments for all 447 contributions. See the [speaker-link audit](docs/speaker-links.md).
+- `df_final_speaker_bio_map.*`: legacy biography matches, retained for audit only;
+  the app no longer loads them or uses Wikipedia as a biography fallback.
 - `gouden_eeuw_seed_dictionary*.csv`, `seed dictionary_add.csv`, and
   `dictplusseed.csv`: dictionaries used to highlight retrieval terms.
 
 The RDS files are used by the app; CSV copies are included for inspection and
-reuse. These files retain the original research data. The app applies ten
+reuse. These files retain the original research data. The app applies eleven
 source-checked metadata corrections from `data/metadata_corrections.json` when
 loading them. See the [metadata audit](docs/metadata-audit.md) for the changes,
 sources and corrected role counts. Reuse that ledger when analysing the data;
@@ -57,7 +60,15 @@ Run the data and app-integration checks from the repository root:
 
 ```sh
 Rscript --vanilla tests/metadata_corrections.R
+Rscript --vanilla tests/speaker_profiles.R
 ```
+
+Speaker panels link to the full biography on Parlement.com and show the role and
+recorded affiliation at the selected contribution. Speaker filters and statistics
+use the reviewed identities, distinguishing shared surnames and combining member
+references that changed between corpus versions. Biography prose and photos are
+not copied into the dashboard. These repository updates have not been redeployed
+to the existing Shiny service.
 
 No API key is stored in this repository. Optional on-demand translation
 uses a LibreTranslate endpoint configured through `LIBRETRANSLATE_URL` and,

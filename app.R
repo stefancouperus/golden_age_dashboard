@@ -9,6 +9,7 @@ suppressPackageStartupMessages({
 })
 
 source("R/metadata_corrections.R", local = TRUE)
+source("R/speaker_profiles.R", local = TRUE)
 metadata_corrections <- load_metadata_corrections()
 
 if (!"localdocs" %in% names(shiny::resourcePaths())) {
@@ -549,412 +550,11 @@ as_true_flag <- function(x) {
   !is.na(x) & x_chr %in% c("true", "t", "1", "yes", "y")
 }
 
-normalize_speaker_key <- function(x) {
-  y <- tolower(trimws(ifelse(is.na(x), "", as.character(x))))
-  y <- gsub("[(].*?[)]", "", y)
-  y <- gsub(",.*$", "", y)
-  y <- gsub("\\b(minister|ministers|staatssecretaris|voorzitter)\\b", "", y)
-  y <- gsub("\\b(jr[.]|sr[.])\\b", "", y)
-  y <- gsub("[^a-zà-ÿ .'-]", " ", y, perl = TRUE)
-  y <- trimws(gsub("[[:space:]]+", " ", y))
-  y
-}
-
 normalize_party_key <- function(x) {
   y <- tolower(trimws(ifelse(is.na(x), "", as.character(x))))
   y <- sub("^nl\\.p\\.", "", y)
   y <- gsub("[^a-z0-9 ]", " ", y)
   trimws(gsub("[[:space:]]+", " ", y))
-}
-
-make_wikipedia_link <- function(wikititle) {
-  wt <- trimws(ifelse(is.na(wikititle), "", as.character(wikititle)))
-  if (!nzchar(wt)) return("")
-  paste0("https://en.wikipedia.org/wiki/", URLencode(wt, reserved = TRUE))
-}
-
-make_wikidata_link <- function(wikidataid) {
-  wd <- trimws(ifelse(is.na(wikidataid), "", as.character(wikidataid)))
-  if (!nzchar(wd)) return("")
-  paste0("https://www.wikidata.org/wiki/", wd)
-}
-
-load_legislator_bundle <- function(cache_path = "legislator_nld_cache.rds", force_refresh = FALSE) {
-  if (!force_refresh && file.exists(cache_path)) {
-    cached <- tryCatch(readRDS(cache_path), error = function(e) NULL)
-    if (!is.null(cached) && is.list(cached) && !is.null(cached$core) && !is.null(cached$political)) {
-      if (is.null(cached$office)) cached$office <- tibble()
-      return(cached)
-    }
-  }
-
-  if (!requireNamespace("legislatoR", quietly = TRUE)) {
-    return(list(core = tibble(), political = tibble(), office = tibble(), status = "legislatoR package not available"))
-  }
-
-  core <- tryCatch(legislatoR::get_core("nld"), error = function(e) NULL)
-  pol <- tryCatch(legislatoR::get_political("nld"), error = function(e) NULL)
-  office <- tryCatch(legislatoR::get_office("nld"), error = function(e) tibble())
-
-  if (is.null(core) || is.null(pol)) {
-    return(list(core = tibble(), political = tibble(), office = tibble(), status = "Could not fetch legislatoR nld tables (check internet)."))
-  }
-
-  out <- list(core = core, political = pol, office = office, fetched_at = Sys.time(), status = "ok")
-  try(saveRDS(out, cache_path), silent = TRUE)
-  out
-}
-
-prepare_legislator_tables <- function(bundle) {
-  if (is.null(bundle) || is.null(bundle$core) || !nrow(bundle$core)) {
-    return(list(core = tibble(), political = tibble(), office = tibble(), status = ifelse(is.null(bundle$status), "No legislatoR data.", bundle$status)))
-  }
-
-  core <- bundle$core
-  pol <- bundle$political
-  office <- if (!is.null(bundle$office)) bundle$office else tibble()
-
-  core_nms <- names(core)
-  pol_nms <- names(pol)
-  off_nms <- names(office)
-
-  core_pageid_col <- first_existing(c("pageid"), core_nms)
-  core_name_col <- first_existing(c("name", "personname", "full_name"), core_nms)
-  core_sex_col <- first_existing(c("sex", "gender"), core_nms)
-  core_birth_col <- first_existing(c("birth", "birthday", "birth_date"), core_nms)
-  core_death_col <- first_existing(c("death", "deathday", "death_date"), core_nms)
-  core_wikidata_col <- first_existing(c("wikidataid", "wikidata_id"), core_nms)
-  core_wikititle_col <- first_existing(c("wikititle", "wiki_title"), core_nms)
-
-  if (is.na(core_pageid_col) || is.na(core_name_col)) {
-    return(list(core = tibble(), political = tibble(), status = "legislatoR nld core table missing key columns."))
-  }
-
-  core_tbl <- tibble(
-    pageid = as.character(core[[core_pageid_col]]),
-    leg_name = as.character(core[[core_name_col]]),
-    sex = if (!is.na(core_sex_col)) as.character(core[[core_sex_col]]) else "",
-    birth = if (!is.na(core_birth_col)) as.Date(core[[core_birth_col]]) else as.Date(NA),
-    death = if (!is.na(core_death_col)) as.Date(core[[core_death_col]]) else as.Date(NA),
-    wikidataid = if (!is.na(core_wikidata_col)) as.character(core[[core_wikidata_col]]) else "",
-    wikititle = if (!is.na(core_wikititle_col)) as.character(core[[core_wikititle_col]]) else ""
-  ) %>%
-    mutate(
-      leg_name = trimws(ifelse(is.na(leg_name), "", leg_name)),
-      leg_name_key = normalize_speaker_key(leg_name),
-      sex = trimws(ifelse(is.na(sex), "", sex)),
-      wikidataid = trimws(ifelse(is.na(wikidataid), "", wikidataid)),
-      wikititle = trimws(ifelse(is.na(wikititle), "", wikititle))
-    ) %>%
-    filter(nzchar(pageid), nzchar(leg_name), nzchar(leg_name_key))
-
-  pol_pageid_col <- first_existing(c("pageid"), pol_nms)
-  pol_party_col <- first_existing(c("party"), pol_nms)
-  pol_start_col <- first_existing(c("session_start", "start", "start_date"), pol_nms)
-  pol_end_col <- first_existing(c("session_end", "end", "end_date"), pol_nms)
-
-  pol_tbl <- if (is.na(pol_pageid_col)) {
-    tibble(pageid = character(0), party = character(0), session_start = as.Date(character(0)), session_end = as.Date(character(0)))
-  } else {
-    tibble(
-      pageid = as.character(pol[[pol_pageid_col]]),
-      party = if (!is.na(pol_party_col)) as.character(pol[[pol_party_col]]) else "",
-      session_start = if (!is.na(pol_start_col)) as.Date(pol[[pol_start_col]]) else as.Date(NA),
-      session_end = if (!is.na(pol_end_col)) as.Date(pol[[pol_end_col]]) else as.Date(NA)
-    ) %>%
-      mutate(
-        party = trimws(ifelse(is.na(party), "", party)),
-        party_norm = normalize_party_key(party)
-      ) %>%
-      filter(nzchar(pageid))
-  }
-
-  off_tbl <- if (!nrow(office)) {
-    tibble(wikidataid = character(0), office = character(0), start = as.Date(character(0)), end = as.Date(character(0)))
-  } else {
-    off_wd_col <- first_existing(c("wikidataid", "wikidata_id"), off_nms)
-    off_pos_col <- first_existing(c("office", "position", "post"), off_nms)
-    off_start_col <- first_existing(c("start", "start_date", "date_from"), off_nms)
-    off_end_col <- first_existing(c("end", "end_date", "date_to"), off_nms)
-
-    if (is.na(off_wd_col) || is.na(off_pos_col)) {
-      tibble(wikidataid = character(0), office = character(0), start = as.Date(character(0)), end = as.Date(character(0)))
-    } else {
-      tibble(
-        wikidataid = as.character(office[[off_wd_col]]),
-        office = as.character(office[[off_pos_col]]),
-        start = if (!is.na(off_start_col)) as.Date(office[[off_start_col]]) else as.Date(NA),
-        end = if (!is.na(off_end_col)) as.Date(office[[off_end_col]]) else as.Date(NA)
-      ) %>%
-        mutate(
-          wikidataid = trimws(ifelse(is.na(wikidataid), "", wikidataid)),
-          office = trimws(ifelse(is.na(office), "", office))
-        ) %>%
-        filter(nzchar(wikidataid), nzchar(office))
-    }
-  }
-
-  list(core = core_tbl, political = pol_tbl, office = off_tbl, status = "ok")
-}
-
-build_legislator_match_map <- function(df_speech, core_tbl, pol_tbl, office_tbl = tibble()) {
-  if (!nrow(df_speech)) return(tibble())
-
-  date_min_or_na <- function(x) {
-    z <- as.Date(x)
-    z <- z[!is.na(z)]
-    if (!length(z)) as.Date(NA) else min(z)
-  }
-  date_max_or_na <- function(x) {
-    z <- as.Date(x)
-    z <- z[!is.na(z)]
-    if (!length(z)) as.Date(NA) else max(z)
-  }
-
-  default_out <- tibble(
-    speech_id = as.character(df_speech$speech_id),
-    speaker_bio_name = "",
-    speaker_bio_url = "",
-    speaker_bio_source = "",
-    speaker_bio_status = "no_match",
-    speaker_bio_sex = "",
-    speaker_bio_birth = as.Date(NA),
-    speaker_bio_death = as.Date(NA),
-    speaker_bio_parties = "",
-    speaker_bio_parliament_start = as.Date(NA),
-    speaker_bio_parliament_end = as.Date(NA),
-    speaker_bio_gov_positions = "",
-    speaker_bio_gov_period = ""
-  )
-
-  if (!nrow(core_tbl)) return(default_out %>% mutate(speaker_bio_status = "no_legislator_data"))
-
-  pol_summary <- if (nrow(pol_tbl)) {
-    pol_tbl %>%
-      group_by(pageid) %>%
-      summarise(
-        speaker_bio_parties = paste(unique(party[nzchar(party)]), collapse = " | "),
-        parties_norm = paste(unique(party_norm[nzchar(party_norm)]), collapse = " "),
-        first_service = date_min_or_na(session_start),
-        last_service = date_max_or_na(session_end),
-        .groups = "drop"
-      )
-  } else {
-    tibble(pageid = character(0), speaker_bio_parties = character(0), parties_norm = character(0), first_service = as.Date(character(0)), last_service = as.Date(character(0)))
-  }
-
-  gov_summary <- if (nrow(office_tbl)) {
-    office_tbl %>%
-      mutate(
-        office_l = tolower(office),
-        is_gov = grepl("minister|staatssecretaris|secretary of state", office_l, perl = TRUE)
-      ) %>%
-      filter(is_gov) %>%
-      group_by(wikidataid) %>%
-      summarise(
-        speaker_bio_gov_positions = paste(unique(office), collapse = " | "),
-        gov_start = date_min_or_na(start),
-        gov_end = date_max_or_na(end),
-        .groups = "drop"
-      ) %>%
-      mutate(
-        speaker_bio_gov_period = ifelse(
-          is.na(gov_start) & is.na(gov_end),
-          "",
-          paste0(
-            ifelse(is.na(gov_start), "?", format(gov_start, "%Y-%m-%d")),
-            " to ",
-            ifelse(is.na(gov_end), "present", format(gov_end, "%Y-%m-%d"))
-          )
-        )
-      )
-  } else {
-    tibble(wikidataid = character(0), speaker_bio_gov_positions = character(0), gov_start = as.Date(character(0)), gov_end = as.Date(character(0)), speaker_bio_gov_period = character(0))
-  }
-
-  core_aug <- core_tbl %>%
-    left_join(pol_summary, by = "pageid") %>%
-    left_join(gov_summary, by = "wikidataid") %>%
-    mutate(
-      parties_norm = ifelse(is.na(parties_norm), "", parties_norm),
-      speaker_bio_parties = ifelse(is.na(speaker_bio_parties), "", speaker_bio_parties),
-      speaker_bio_gov_positions = ifelse(is.na(speaker_bio_gov_positions), "", speaker_bio_gov_positions),
-      speaker_bio_gov_period = ifelse(is.na(speaker_bio_gov_period), "", speaker_bio_gov_period)
-    )
-
-  idx_by_key <- split(seq_len(nrow(core_aug)), core_aug$leg_name_key)
-
-  rows <- lapply(seq_len(nrow(df_speech)), function(i) {
-    sp <- df_speech[i, , drop = FALSE]
-    sp_id <- as.character(sp$speech_id[[1]])
-    sp_speaker <- trimws(ifelse(is.na(sp$speaker[[1]]), "", as.character(sp$speaker[[1]])))
-    sp_key <- normalize_speaker_key(sp_speaker)
-    sp_date <- as.Date(sp$date[[1]])
-    sp_party <- normalize_party_key(sp$party_clean[[1]])
-
-    cand_idx <- idx_by_key[[sp_key]]
-    if (is.null(cand_idx) || !length(cand_idx)) {
-      return(tibble(
-        speech_id = sp_id,
-        speaker_bio_name = "",
-        speaker_bio_url = "",
-        speaker_bio_source = "",
-        speaker_bio_status = "no_match",
-        speaker_bio_sex = "",
-        speaker_bio_birth = as.Date(NA),
-        speaker_bio_death = as.Date(NA),
-        speaker_bio_parties = "",
-        speaker_bio_parliament_start = as.Date(NA),
-        speaker_bio_parliament_end = as.Date(NA),
-        speaker_bio_gov_positions = "",
-        speaker_bio_gov_period = ""
-      ))
-    }
-
-    cand <- core_aug[cand_idx, , drop = FALSE] %>%
-      mutate(
-        score_name_exact = ifelse(tolower(leg_name) == tolower(sp_speaker), 3L, 0L),
-        score_date = ifelse(!is.na(first_service) & !is.na(last_service) & !is.na(sp_date) & sp_date >= first_service & sp_date <= last_service, 2L, 0L),
-        score_party = ifelse(
-          nzchar(sp_party) & sp_party != "government" & nzchar(parties_norm) &
-            grepl(paste0("\\b", escape_regex(sp_party), "\\b"), parties_norm, perl = TRUE),
-          1L, 0L
-        ),
-        score = score_name_exact + score_date + score_party
-      ) %>%
-      arrange(desc(score), desc(score_date), desc(score_name_exact), leg_name)
-
-    top <- cand[1, , drop = FALSE]
-    top_score <- as.integer(top$score[[1]])
-    ties <- sum(cand$score == top_score)
-    matched <- top_score >= 2L && ties == 1L
-
-    if (!matched) {
-      status <- if (ties > 1L && top_score > 0L) "ambiguous" else "low_confidence"
-      return(tibble(
-        speech_id = sp_id,
-        speaker_bio_name = "",
-        speaker_bio_url = "",
-        speaker_bio_source = "",
-        speaker_bio_status = status,
-        speaker_bio_sex = "",
-        speaker_bio_birth = as.Date(NA),
-        speaker_bio_death = as.Date(NA),
-        speaker_bio_parties = "",
-        speaker_bio_parliament_start = as.Date(NA),
-        speaker_bio_parliament_end = as.Date(NA),
-        speaker_bio_gov_positions = "",
-        speaker_bio_gov_period = ""
-      ))
-    }
-
-    wiki_url <- make_wikipedia_link(top$wikititle[[1]])
-    wd_url <- make_wikidata_link(top$wikidataid[[1]])
-    final_url <- ifelse(nzchar(wiki_url), wiki_url, wd_url)
-    final_source <- ifelse(nzchar(wiki_url), "wikipedia", ifelse(nzchar(wd_url), "wikidata", ""))
-
-    tibble(
-      speech_id = sp_id,
-      speaker_bio_name = top$leg_name[[1]],
-      speaker_bio_url = final_url,
-      speaker_bio_source = final_source,
-      speaker_bio_status = "matched",
-      speaker_bio_sex = top$sex[[1]],
-      speaker_bio_birth = top$birth[[1]],
-      speaker_bio_death = top$death[[1]],
-      speaker_bio_parties = top$speaker_bio_parties[[1]],
-      speaker_bio_parliament_start = top$first_service[[1]],
-      speaker_bio_parliament_end = top$last_service[[1]],
-      speaker_bio_gov_positions = top$speaker_bio_gov_positions[[1]],
-      speaker_bio_gov_period = top$speaker_bio_gov_period[[1]]
-    )
-  })
-
-  bind_rows(rows)
-}
-
-split_initials_surname <- function(name) {
-  nm <- trimws(ifelse(is.na(name), "", as.character(name)))
-  toks <- unlist(strsplit(nm, "[[:space:]]+"))
-  toks <- toks[nzchar(toks)]
-  if (!length(toks)) return(list(initials = "", surname = ""))
-  if (length(toks) == 1) return(list(initials = "", surname = toks[[1]]))
-  initials <- paste0(substr(toks[-length(toks)], 1, 1), collapse = ".")
-  list(initials = paste0(initials, "."), surname = toks[[length(toks)]])
-}
-
-wiki_search_url <- function(name) {
-  paste0(
-    "https://nl.wikipedia.org/w/index.php?search=",
-    URLencode(trimws(ifelse(is.na(name), "", as.character(name))), reserved = TRUE)
-  )
-}
-
-fetch_wikipedia_infobox <- function(name) {
-  out <- list(
-    source = "wikipedia",
-    url = wiki_search_url(name),
-    birth = "",
-    death = "",
-    parties = "",
-    parliament_period = "",
-    gov_position = "",
-    gov_period = ""
-  )
-
-  if (!requireNamespace("rvest", quietly = TRUE) || !requireNamespace("xml2", quietly = TRUE)) return(out)
-
-  page <- tryCatch(rvest::read_html(out$url), error = function(e) NULL)
-  if (is.null(page)) return(out)
-
-  first_hit <- tryCatch({
-    x <- page %>%
-      rvest::html_elements(".mw-search-results li .mw-search-result-heading a") %>%
-      rvest::html_attr("href")
-    x <- x[!is.na(x) & nzchar(x)]
-    if (!length(x)) "" else x[[1]]
-  }, error = function(e) "")
-
-  if (nzchar(first_hit)) {
-    hit_url <- paste0("https://nl.wikipedia.org", first_hit)
-    out$url <- hit_url
-    page <- tryCatch(rvest::read_html(hit_url), error = function(e) page)
-  } else {
-    current_url <- tryCatch(as.character(xml2::url_absolute("", xml2::xml_url(page))), error = function(e) out$url)
-    if (!is.null(current_url) && nzchar(current_url)) out$url <- current_url
-  }
-
-  info_tbl <- tryCatch({
-    rows <- page %>% rvest::html_elements("table.infobox tr")
-    th <- rows %>% rvest::html_element("th") %>% rvest::html_text2()
-    td <- rows %>% rvest::html_element("td") %>% rvest::html_text2()
-    tibble(
-      key = tolower(trimws(ifelse(is.na(th), "", th))),
-      val = trimws(ifelse(is.na(td), "", td))
-    ) %>% filter(nzchar(key), nzchar(val))
-  }, error = function(e) tibble(key = character(0), val = character(0)))
-
-  if (!nrow(info_tbl)) return(out)
-
-  pick_first <- function(pattern) {
-    hit <- info_tbl %>% filter(grepl(pattern, key, perl = TRUE)) %>% pull(val)
-    if (!length(hit)) "" else hit[[1]]
-  }
-
-  out$birth <- pick_first("geboren|born")
-  out$death <- pick_first("overleden|died")
-  out$parties <- pick_first("partij|politieke partij")
-  out$parliament_period <- pick_first("lid van.*kamer|in functie|ambtstermijn")
-
-  gov_rows <- info_tbl %>%
-    filter(grepl("minister|staatssecretaris|secretary of state", key, ignore.case = TRUE) |
-             grepl("minister|staatssecretaris|secretary of state", val, ignore.case = TRUE))
-  if (nrow(gov_rows)) {
-    out$gov_position <- gov_rows$val[[1]]
-    out$gov_period <- pick_first("ambtstermijn|in functie")
-  }
-
-  out
 }
 
 normalize_input_data <- function(df) {
@@ -989,6 +589,7 @@ normalize_input_data <- function(df) {
     speech_id = if (!is.na(id_col)) as.character(df[[id_col]]) else sprintf("sp_%06d", seq_len(nrow(df))),
     date = as.Date(df[[date_col]]),
     speaker = if (!is.na(speaker_col)) as.character(df[[speaker_col]]) else "Unknown speaker",
+    member_ref = if ("member_ref" %in% nms) as.character(df$member_ref) else NA_character_,
     party_ref = if (!is.na(party_col)) as.character(df[[party_col]]) else "unknown",
     role = if (!is.na(role_col)) as.character(df[[role_col]]) else "unknown",
     speaking_capacity = if ("speaking_capacity" %in% nms) as.character(df$speaking_capacity) else "",
@@ -1165,98 +766,9 @@ load_sgd_docid_map <- function(path = "sgd_docid_map.csv") {
 
 sgd_docid_map <- load_sgd_docid_map()
 
-load_precomputed_speaker_bio_map <- function(
-    rds_path = "df_final_speaker_bio_map.rds",
-    csv_fallback = "df_final_speaker_bio_map.csv") {
-  out <- NULL
-
-  if (file.exists(rds_path)) {
-    out <- tryCatch(readRDS(rds_path), error = function(e) NULL)
-  } else if (file.exists(csv_fallback)) {
-    out <- tryCatch(utils::read.csv(csv_fallback, stringsAsFactors = FALSE), error = function(e) NULL)
-  }
-
-  if (is.null(out) || !nrow(out)) return(tibble())
-  if (!"speech_id" %in% names(out)) return(tibble())
-
-  out <- as_tibble(out) %>%
-    mutate(
-      speech_id = as.character(speech_id),
-      speaker_bio_name = if ("speaker_bio_name" %in% names(.)) as.character(speaker_bio_name) else "",
-      speaker_bio_url = if ("speaker_bio_url" %in% names(.)) as.character(speaker_bio_url) else "",
-      speaker_bio_source = if ("speaker_bio_source" %in% names(.)) as.character(speaker_bio_source) else "",
-      speaker_bio_status = if ("speaker_bio_status" %in% names(.)) as.character(speaker_bio_status) else "no_match",
-      speaker_bio_sex = if ("speaker_bio_sex" %in% names(.)) as.character(speaker_bio_sex) else "",
-      speaker_bio_birth = if ("speaker_bio_birth" %in% names(.)) as.Date(speaker_bio_birth) else as.Date(NA),
-      speaker_bio_death = if ("speaker_bio_death" %in% names(.)) as.Date(speaker_bio_death) else as.Date(NA),
-      speaker_bio_parties = if ("speaker_bio_parties" %in% names(.)) as.character(speaker_bio_parties) else "",
-      speaker_bio_parliament_start = if ("speaker_bio_parliament_start" %in% names(.)) as.Date(speaker_bio_parliament_start) else as.Date(NA),
-      speaker_bio_parliament_end = if ("speaker_bio_parliament_end" %in% names(.)) as.Date(speaker_bio_parliament_end) else as.Date(NA),
-      speaker_bio_gov_positions = if ("speaker_bio_gov_positions" %in% names(.)) as.character(speaker_bio_gov_positions) else "",
-      speaker_bio_gov_period = if ("speaker_bio_gov_period" %in% names(.)) as.character(speaker_bio_gov_period) else ""
-    ) %>%
-    select(
-      speech_id,
-      speaker_bio_name,
-      speaker_bio_url,
-      speaker_bio_source,
-      speaker_bio_status,
-      speaker_bio_sex,
-      speaker_bio_birth,
-      speaker_bio_death,
-      speaker_bio_parties,
-      speaker_bio_parliament_start,
-      speaker_bio_parliament_end,
-      speaker_bio_gov_positions,
-      speaker_bio_gov_period
-    ) %>%
-    distinct(speech_id, .keep_all = TRUE)
-
-  out
-}
-
-ensure_speaker_bio_columns <- function(df) {
-  add_date_col <- function(x, nm) if (!nm %in% names(x)) mutate(x, !!nm := as.Date(NA)) else x
-  add_chr_col <- function(x, nm, val = "") if (!nm %in% names(x)) mutate(x, !!nm := val) else x
-
-  df <- add_chr_col(df, "speaker_bio_name", "")
-  df <- add_chr_col(df, "speaker_bio_url", "")
-  df <- add_chr_col(df, "speaker_bio_source", "")
-  df <- add_chr_col(df, "speaker_bio_status", "no_match")
-  df <- add_chr_col(df, "speaker_bio_sex", "")
-  df <- add_date_col(df, "speaker_bio_birth")
-  df <- add_date_col(df, "speaker_bio_death")
-  df <- add_chr_col(df, "speaker_bio_parties", "")
-  df <- add_date_col(df, "speaker_bio_parliament_start")
-  df <- add_date_col(df, "speaker_bio_parliament_end")
-  df <- add_chr_col(df, "speaker_bio_gov_positions", "")
-  df <- add_chr_col(df, "speaker_bio_gov_period", "")
-  df
-}
-
-# Speaker enrichment for popup modal:
-# 1) prefer precomputed speech-level map (from build_df_final_speaker_bio_map.R)
-# 2) fallback to on-the-fly legislatoR matching if precomputed map is unavailable.
-speaker_bio_map <- load_precomputed_speaker_bio_map()
-
-if (!nrow(speaker_bio_map)) {
-  legislator_bundle <- load_legislator_bundle(cache_path = "legislator_nld_cache.rds")
-  legislator_tables <- prepare_legislator_tables(legislator_bundle)
-
-  speaker_bio_map <- build_legislator_match_map(
-    df_speech = df_dash %>% select(speech_id, speaker, date, party_clean),
-    core_tbl = legislator_tables$core,
-    pol_tbl = legislator_tables$political,
-    office_tbl = legislator_tables$office
-  )
-}
-
-speaker_bio_map <- apply_biography_metadata_corrections(speaker_bio_map, metadata_corrections)
-
-if (nrow(speaker_bio_map)) {
-  df_dash <- df_dash %>% left_join(speaker_bio_map, by = "speech_id")
-}
-df_dash <- ensure_speaker_bio_columns(df_dash)
+# Explicit speech-to-person links replace the old surname-based biography lookup.
+speaker_profiles <- load_speaker_profiles()
+df_dash <- apply_speaker_profiles(df_dash, speaker_profiles)
 
 min_date <- paper_start_date
 max_date <- paper_end_date
@@ -1739,22 +1251,12 @@ server <- function(input, output, session) {
     period_end = max_date,
     dutch_zoom = 1,
     show_seed_terms = FALSE,
-    wiki_cache = list(),
     translation_cache = list(),
     evidence_active_type = "none",
     evidence_tg_idx = 1L,
     evidence_sw_idx = 1L,
     evidence_speech_id = ifelse(nrow(df_dash), as.character(df_dash$speech_id[[1]]), "")
   )
-
-  get_wiki_cached <- function(name) {
-    key <- tolower(trimws(ifelse(is.na(name), "", as.character(name))))
-    if (!nzchar(key)) return(fetch_wikipedia_infobox(name))
-    if (!is.null(rv$wiki_cache[[key]])) return(rv$wiki_cache[[key]])
-    info <- fetch_wikipedia_infobox(name)
-    rv$wiki_cache[[key]] <- info
-    info
-  }
 
   translation_cache_key <- function(speech_id, evidence_type, evidence_idx, nl_fragment) {
     paste(
@@ -1779,60 +1281,22 @@ server <- function(input, output, session) {
   }
 
   build_speaker_profile <- function(sp) {
-    nm <- trimws(ifelse(is.na(sp$speaker[[1]]), "", as.character(sp$speaker[[1]])))
-    bio_name <- trimws(ifelse(is.na(sp$speaker_bio_name[[1]]), "", as.character(sp$speaker_bio_name[[1]])))
-    status <- trimws(ifelse(is.na(sp$speaker_bio_status[[1]]), "", as.character(sp$speaker_bio_status[[1]])))
-    if (!nzchar(status)) status <- "no_match"
-
-    display_name <- ifelse(nzchar(bio_name), bio_name, nm)
-    parts <- split_initials_surname(display_name)
-    is_government <- identical(sp$role[[1]], "government")
-
-    leg_birth <- if (!is.na(sp$speaker_bio_birth[[1]])) format(as.Date(sp$speaker_bio_birth[[1]]), "%Y-%m-%d") else ""
-    leg_death <- if (!is.na(sp$speaker_bio_death[[1]])) format(as.Date(sp$speaker_bio_death[[1]]), "%Y-%m-%d") else ""
-    leg_party <- trimws(ifelse(is.na(sp$speaker_bio_parties[[1]]), "", as.character(sp$speaker_bio_parties[[1]])))
-    leg_parl <- if (!is.na(sp$speaker_bio_parliament_start[[1]]) || !is.na(sp$speaker_bio_parliament_end[[1]])) {
-      paste0(
-        ifelse(is.na(sp$speaker_bio_parliament_start[[1]]), "?", format(as.Date(sp$speaker_bio_parliament_start[[1]]), "%Y-%m-%d")),
-        " to ",
-        ifelse(is.na(sp$speaker_bio_parliament_end[[1]]), "present", format(as.Date(sp$speaker_bio_parliament_end[[1]]), "%Y-%m-%d"))
-      )
-    } else ""
-    leg_gov_pos <- trimws(ifelse(is.na(sp$speaker_bio_gov_positions[[1]]), "", as.character(sp$speaker_bio_gov_positions[[1]])))
-    leg_gov_per <- trimws(ifelse(is.na(sp$speaker_bio_gov_period[[1]]), "", as.character(sp$speaker_bio_gov_period[[1]])))
-    leg_url <- trimws(ifelse(is.na(sp$speaker_bio_url[[1]]), "", as.character(sp$speaker_bio_url[[1]])))
-
-    wiki <- NULL
-    use_wiki <- !status %in% c("matched", "verified")
-    if (use_wiki) wiki <- get_wiki_cached(nm)
-    fallback_url <- if (is.null(wiki)) wiki_search_url(nm) else wiki$url
-
     list(
-      speaker_name = display_name,
-      initials = parts$initials,
-      surname = parts$surname,
-      birth = ifelse(nzchar(leg_birth), leg_birth, ifelse(is.null(wiki), "", wiki$birth)),
-      death = ifelse(nzchar(leg_death), leg_death, ifelse(is.null(wiki), "", wiki$death)),
-      parties = ifelse(nzchar(leg_party), leg_party, ifelse(is.null(wiki), "", wiki$parties)),
-      parliament_period = ifelse(nzchar(leg_parl), leg_parl, ifelse(is.null(wiki), "", wiki$parliament_period)),
-      gov_position = if (is_government) {
-        ifelse(nzchar(leg_gov_pos), leg_gov_pos, ifelse(is.null(wiki), "", wiki$gov_position))
-      } else "",
-      gov_period = if (is_government) {
-        ifelse(nzchar(leg_gov_per), leg_gov_per, ifelse(is.null(wiki), "", wiki$gov_period))
-      } else "",
-      source = if (identical(status, "verified")) {
-        sp$speaker_bio_source[[1]]
-      } else if (identical(status, "matched")) "legislatoR" else "wikipedia fallback",
-      profile_url = if (nzchar(leg_url)) leg_url else fallback_url,
-      match_status = status
+      speaker_name = sp$speaker[[1]],
+      role = speaker_role_label(sp$role[[1]]),
+      party = sp$party_clean[[1]],
+      date = format(sp$date[[1]], "%Y-%m-%d"),
+      capacity = sp$speaking_capacity[[1]],
+      source = sp$speaker_profile_source[[1]],
+      profile_url = sp$speaker_profile_url[[1]],
+      match_status = sp$speaker_profile_status[[1]]
     )
   }
 
   build_speaker_dataset_profile <- function(sp) {
-    sp_key <- trimws(ifelse(is.na(sp$speaker[[1]]), "", as.character(sp$speaker[[1]])))
+    person_id <- sp$speaker_person_id[[1]]
     x_all <- df_dash %>%
-      filter(trimws(as.character(speaker)) == sp_key) %>%
+      filter(speaker_person_id == person_id) %>%
       arrange(date)
 
     n_total <- nrow(x_all)
@@ -1843,7 +1307,7 @@ server <- function(input, output, session) {
 
     x_current <- tryCatch({
       selected_pool() %>%
-        filter(trimws(as.character(speaker)) == sp_key) %>%
+        filter(speaker_person_id == person_id) %>%
         arrange(date)
     }, error = function(e) x_all[0, , drop = FALSE])
 
@@ -2000,14 +1464,14 @@ server <- function(input, output, session) {
                 class = "table table-sm",
                 style = "margin-bottom:8px;",
                 tags$tbody(
-                  tags$tr(tags$th("Initials"), tags$td(ifelse(nzchar(prof$initials), prof$initials, "n/a"))),
-                  tags$tr(tags$th("Surname"), tags$td(ifelse(nzchar(prof$surname), prof$surname, "n/a"))),
-                  tags$tr(tags$th("Date of birth"), tags$td(ifelse(nzchar(prof$birth), prof$birth, "n/a"))),
-                  tags$tr(tags$th("Date of death"), tags$td(ifelse(nzchar(prof$death), prof$death, "n/a"))),
-                  tags$tr(tags$th("Affiliated parties"), tags$td(ifelse(nzchar(prof$parties), prof$parties, "n/a")))
+                  tags$tr(tags$th("Name"), tags$td(prof$speaker_name)),
+                  tags$tr(tags$th("Contribution date"), tags$td(prof$date)),
+                  tags$tr(tags$th("Role at this contribution"), tags$td(prof$role)),
+                  tags$tr(tags$th("Recorded affiliation"), tags$td(ifelse(prof$party == "government", "Not recorded", prof$party))),
+                  if (!is.na(prof$capacity) && nzchar(prof$capacity)) tags$tr(tags$th("Speaking capacity"), tags$td(prof$capacity))
                 )
               ),
-              if (nzchar(prof$profile_url)) tags$p(style = "margin:0;", tags$a(href = prof$profile_url, target = "_blank", rel = "noopener noreferrer", "Open external profile/source"))
+              if (nzchar(prof$profile_url)) tags$p(style = "margin:0;", tags$a(href = prof$profile_url, target = "_blank", rel = "noopener noreferrer", paste0("More about ", prof$speaker_name, " on Parlement.com")))
             ),
             tags$div(
               tags$p(style = "margin:0 0 8px 0;font-weight:700;", "Speaker profile in this dataset"),
@@ -3133,12 +2597,7 @@ server <- function(input, output, session) {
   output$speech_context_note <- renderUI({
     sp <- selected_speech()
     if (is.null(sp)) return(NULL)
-    role_label <- switch(sp$role[[1]],
-      government = "Government speaker",
-      mp = "Member of the Tweede Kamer",
-      mep = "Member of the European Parliament",
-      "Role not recorded"
-    )
+    role_label <- speaker_role_label(sp$role[[1]])
     details <- c(role_label, sp$speaking_capacity[[1]])
     group <- sp$parliamentary_group_as_recorded[[1]]
     if (!is.na(group) && nzchar(group)) details <- c(details, paste0("Parliamentary group as recorded: ", group))
