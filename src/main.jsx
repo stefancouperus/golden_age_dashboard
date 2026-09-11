@@ -144,10 +144,11 @@ function App() {
       `${location.origin}${location.pathname}${location.search}#${serializeState({ ...state, page: "explore", ...(speech ? { speech } : {}) })}`,
     );
   useEffect(() => {
+    const title = 'The Dutch "Gouden Eeuw" in Parliamentary Debate';
     document.title =
       state.page === "explore"
-        ? "Golden Age Politics — Explore Dutch parliamentary speech"
-        : "About & methods — Golden Age Politics";
+        ? title
+        : `About & methods — ${title}`;
   }, [state.page]);
   // Optional WebMCP surface shares the interface's filter actions. Browsers
   // without this proposed API use the ordinary controls without a polyfill.
@@ -285,6 +286,7 @@ function App() {
       </>
     );
   }
+  const BrandTitle = state.page === "explore" ? "h1" : "span";
   return (
     <>
       <a
@@ -307,9 +309,9 @@ function App() {
               navigate("explore");
             }}
           >
-            <span>
-              Golden Age <em>Politics</em>
-            </span>
+            <BrandTitle className="brand-title">
+              The Dutch <em>"Gouden Eeuw"</em> in Parliamentary Debate
+            </BrandTitle>
             <small>DUTCH PARLIAMENTARY MEMORY · 1945–2024</small>
           </a>
           <nav aria-label="Main navigation">
@@ -334,7 +336,6 @@ function App() {
           <section className="introduction">
             <div>
               <p className="eyebrow">A RESEARCH EXPLORER</p>
-              <h1>The Dutch "Gouden Eeuw" in Parliamentary Debate</h1>
               <p>
                 How does a remembered past become a political argument? Explore
                 the uses of the <i>Gouden Eeuw</i>, with Dutch speeches and

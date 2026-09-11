@@ -126,17 +126,22 @@ h3 {
   display: flex;
   flex-direction: column;
   gap: 5px;
+  min-width: 0;
 }
 .brand:hover {
   color: white;
 }
-.brand > span {
-  font: 500 1.65rem/1.1 var(--serif);
+.brand-title {
+  font: 500 clamp(1.25rem, 2.2vw, 1.65rem)/1.2 var(--serif);
+  color: inherit;
+  letter-spacing: -0.015em;
+  margin: 0;
 }
 .brand em {
   font-weight: 400;
   font-style: normal;
   color: #e0ba79;
+  white-space: nowrap;
 }
 .brand small {
   font-size: 0.65rem;
@@ -145,6 +150,7 @@ h3 {
 }
 .header-inner nav {
   display: flex;
+  flex-shrink: 0;
   gap: 28px;
   align-items: center;
 }
@@ -171,7 +177,7 @@ main {
   grid-template-columns: 1fr auto;
   align-items: center;
   gap: 64px;
-  padding: 35px 0 30px;
+  padding: 24px 0 22px;
   border-bottom: 1px solid var(--line);
   margin-bottom: 28px;
 }
@@ -191,9 +197,6 @@ h1 {
   color: var(--navy);
   letter-spacing: -0.025em;
   margin-bottom: 12px;
-}
-.introduction h1 {
-  font-size: clamp(1.35rem, 2vw, 1.875rem);
 }
 .introduction > div > p:last-child {
   font-size: 0.93rem;
@@ -849,7 +852,7 @@ fieldset legend {
     font-size: 1.7rem;
   }
   .introduction {
-    padding: 28px 0 24px;
+    padding: 22px 0 20px;
     gap: 21px;
   }
   .workspace {
@@ -873,9 +876,6 @@ fieldset legend {
   .header-inner {
     gap: 18px;
   }
-  .brand > span {
-    font-size: 1.5rem;
-  }
   .brand small {
     font-size: 0.6rem;
   }
@@ -893,14 +893,14 @@ fieldset legend {
   .header-inner nav button {
     font-size: 0.8rem;
   }
-  .brand > span {
-    font-size: 1.65rem;
+  .brand-title {
+    font-size: 1.4rem;
   }
   main {
     padding: 0 18px;
   }
   .introduction {
-    padding: 25px 0 23px;
+    padding: 20px 0 18px;
     margin-bottom: 18px;
     gap: 19px;
   }
