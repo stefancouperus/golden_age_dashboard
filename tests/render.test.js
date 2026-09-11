@@ -6,6 +6,7 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { createServer } from "vite";
 import {
   INITIAL,
+  CODES,
   prepareSpeeches,
   evidenceRanges,
   textSegments,
@@ -17,8 +18,15 @@ test("research views render populated, exceptional and empty selections", async 
     appType: "custom",
   });
   try {
-    const { Reader, Filters, Patterns, Information, Timeline, AuthorLinks } =
-      await server.ssrLoadModule("/src/components.jsx");
+    const {
+      Reader,
+      Filters,
+      Patterns,
+      Information,
+      Timeline,
+      AuthorLinks,
+      Code,
+    } = await server.ssrLoadModule("/src/components.jsx");
     const corpus = JSON.parse(
       readFileSync(new URL("../public/data/corpus.json", import.meta.url)),
     );
@@ -36,6 +44,18 @@ test("research views render populated, exceptional and empty selections", async 
     assert.match(filters, /Temporal grammar/);
     assert.match(filters, /Speaking role/);
     assert.match(filters, /No affiliation recorded/);
+    for (const code of Object.values(CODES)) {
+      const badge = render(Code, { id: code.id });
+      assert(badge.includes(code.meaning), code.id);
+      assert(filters.includes(code.meaning), `${code.id} filter explanation`);
+      assert.match(badge, /role="tooltip"/);
+      const description = badge.match(/aria-describedby="([^"]+)"/)[1];
+      assert(badge.includes(`id="${description}"`));
+      assert.match(badge, /tabindex="0"/);
+      const cardBadge = render(Code, { id: code.id, focusable: false });
+      assert.doesNotMatch(cardBadge, /tabindex=|role="button"/);
+    }
+
     for (const rows of [speeches, []]) {
       const matrix = render(Patterns, { rows, state: INITIAL, update });
       assert.equal((matrix.match(/<td>/g) || []).length, 20);

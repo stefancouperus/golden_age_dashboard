@@ -15,6 +15,7 @@ specific commit. The website does not apply correction overlays to the old RDS.
 - Explore a timeline and all 20 temporal-grammar × symbolic-work combinations.
 - Read paired evidence translations, coding rationales and full Dutch speeches.
 - See all TG and SW evidence together in the exact code colours; overlapping passages carry both colours as underline bands.
+- Hover over coding labels to read the same definitions as About; focus or tap a badge to inspect its explanation.
 - Follow reviewed Parlement.com biographies and original parliamentary records.
 - Share a selection or individual speech by URL.
 - Find the authors’ University of Groningen profiles and data-request information under About.

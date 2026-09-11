@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
+import { CodeHint } from "./CodeHint.jsx";
 import {
   CODES,
   TG,
@@ -22,17 +23,18 @@ import {
   yearCounts,
 } from "./domain.js";
 
-export function Code({ id }) {
+export function Code({ id, focusable = true }) {
   const c = CODES[id];
   return (
-    <span
+    <CodeHint
+      codes={[id]}
+      focusable={focusable}
       className="code"
       style={{ "--code-color": c.color, "--code-text": foreground(c.color) }}
-      title={c.meaning}
     >
       <b>{id}</b>
       {c.short || c.label}
-    </span>
+    </CodeHint>
   );
 }
 export function Arrow() {
@@ -141,8 +143,12 @@ export function Filters({
       : state.speakers.includes(id),
   );
   function option(dimension, id, label, color) {
+    const Label = CODES[id] ? CodeHint : "label";
+    const help = CODES[id]
+      ? { codes: [id], as: "label", focusable: false, preserveClick: true }
+      : {};
     return (
-      <label className="check-option" key={id}>
+      <Label className="check-option" key={id} {...help}>
         <input
           type="checkbox"
           checked={state[dimension].includes(id)}
@@ -159,7 +165,7 @@ export function Filters({
         )}
         <span>{label}</span>
         <small>{facets[dimension][id] || 0}</small>
-      </label>
+      </Label>
     );
   }
   return (
@@ -292,21 +298,29 @@ export function ActiveFilters({ state, speeches, update, reset }) {
     for (const id of state[dimension])
       chips.push({
         label: names[dimension][id] || id,
+        code: CODES[id] ? id : undefined,
         patch: { [dimension]: state[dimension].filter((x) => x !== id) },
       });
   if (!chips.length) return null;
   return (
     <div className="active-filters" aria-label="Active filters">
-      {chips.map((chip, i) => (
-        <button
-          key={i}
-          onClick={() => update({ ...chip.patch, speech: "" })}
-          aria-label={`Remove filter: ${chip.label}`}
-        >
-          {chip.label}
-          <span aria-hidden="true">×</span>
-        </button>
-      ))}
+      {chips.map((chip, i) => {
+        const Chip = chip.code ? CodeHint : "button";
+        const help = chip.code
+          ? { codes: [chip.code], as: "button", preserveClick: true }
+          : {};
+        return (
+          <Chip
+            {...help}
+            key={i}
+            onClick={() => update({ ...chip.patch, speech: "" })}
+            aria-label={`Remove filter: ${chip.label}`}
+          >
+            {chip.label}
+            <span aria-hidden="true">×</span>
+          </Chip>
+        );
+      })}
       <button className="clear-all" onClick={reset}>
         Clear all
       </button>
@@ -487,7 +501,7 @@ export function Highlighted({ text, ranges, speech }) {
     const labels = part.families.map((family) =>
       family === "search"
         ? "Search match"
-        : `${speech[family]} ${CODES[speech[family]].label}`,
+        : `${speech[family]} ${CODES[speech[family]].label}: ${CODES[speech[family]].meaning}`,
     );
     return (
       <mark
@@ -738,20 +752,20 @@ export function Reader({
             className="evidence-legend"
             aria-label="Evidence highlight colours"
           >
-            <span id="evidence-legend-tg">
+            <CodeHint codes={[s.tg]} id="evidence-legend-tg">
               <mark className="text-highlight tg">{s.tg}</mark>{" "}
               {CODES[s.tg].label}
-            </span>
-            <span id="evidence-legend-sw">
+            </CodeHint>
+            <CodeHint codes={[s.sw]} id="evidence-legend-sw">
               <mark className="text-highlight sw">{s.sw}</mark>{" "}
               {CODES[s.sw].short || CODES[s.sw].label}
-            </span>
-            <span>
+            </CodeHint>
+            <CodeHint codes={[s.tg, s.sw]}>
               <mark className="text-highlight overlap">
                 {s.tg} + {s.sw}
               </mark>{" "}
               Both codes
-            </span>
+            </CodeHint>
             {withinSearch && (
               <span>
                 <mark className="text-highlight search">Search</mark> Dotted

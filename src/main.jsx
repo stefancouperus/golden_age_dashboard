@@ -24,6 +24,7 @@ import {
   Reader,
   Timeline,
 } from "./components.jsx";
+import { CodeHint } from "./CodeHint.jsx";
 import "./styles.css";
 import "./explorer.css";
 
@@ -487,7 +488,11 @@ function App() {
                     <div className="speech-results">
                       <div className="speech-list">
                         {rows.slice(0, limit).map((s) => (
-                          <button
+                          <CodeHint
+                            as="button"
+                            codes={[s.tg, s.sw]}
+                            preserveClick
+                            focusOnly
                             key={s.id}
                             className={`speech-card ${s.id === selected?.id ? "selected" : ""}`}
                             onClick={() => update({ speech: s.id })}
@@ -503,15 +508,15 @@ function App() {
                               {s.evidence.tg[0].nl.length > 175 ? "…" : ""}
                             </p>
                             <span className="code-row">
-                              <Code id={s.tg} />
-                              <Code id={s.sw} />
+                              <Code id={s.tg} focusable={false} />
+                              <Code id={s.sw} focusable={false} />
                             </span>
                             {s.scopeNote && (
                               <span className="scope-indicator">
                                 Scope note
                               </span>
                             )}
-                          </button>
+                          </CodeHint>
                         ))}
                       </div>
                       {rows.length > limit && (

@@ -42,6 +42,15 @@ Code IDs and text labels supplement colour. Label foregrounds and matrix counts
 are chosen for at least 4.5:1 text contrast. This numeric check does not establish
 complete visual or accessibility compliance.
 
+Code badges, coding filters, active coding-filter chips and the speech legend
+share one explanation component, using the exact same `CODES.meaning` values
+as About. It opens on hover or focus, supports tapping a badge, and dismisses on
+Escape or outside interaction. Native popovers keep the explanation above
+scrolling panels and the mobile reader, with a fixed-position fallback. Filter
+checkboxes and remove-filter buttons retain their normal actions. Speech cards
+show both definitions on keyboard focus and the individual badge definition on
+hover; their badges do not introduce nested keyboard controls.
+
 The reader pairs original Dutch evidence with precomputed English translations,
 links the selected evidence to its location in the unchanged full text, and
 provides coding rationales, research notes, biographies and original proceedings.
