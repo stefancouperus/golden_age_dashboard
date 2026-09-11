@@ -1,0 +1,96 @@
+{
+  "schema_version": 1,
+  "reviewed_on": "2026-09-11",
+  "scope": "Nine MP-role records with missing party_ref, plus the opposite role error found for Asscher in the government-role consistency check. Original text, evidence, dates, inclusion decisions and analytical codes are retained.",
+  "corrections": [
+    {
+      "speech_id": "nl.proc.sgd.d.194819490000487.3.2",
+      "expected": {"date": "1949-05-17", "speaker": "Welter zet zijn rede voort en", "role": "mp", "party_ref": null},
+      "updates": {"speaker": "Welter", "party_ref": "nl.p.knp", "member_ref": "nl.m.01520"},
+      "source_url": "https://resolver.kb.nl/resolve?urn=sgd:mpeg21:19481949:0000487:pdf",
+      "source_locations": ["Data/1940/nl.proc.sgd.d.194819490000487.xml: speeches .2.6 and .3.2", "https://www.parlement.com/biografie/chjim-charles-welter"],
+      "reason": "A continuation instruction was included in the parsed speaker name. The same sitting identifies Welter with party_ref nl.p.knp and member_ref nl.m.01520; the continuation and page headers identify the same speaker.",
+      "biography": {"name": "Charles Welter", "url": "https://www.parlement.com/biografie/chjim-charles-welter", "parties": "KNP (at the time of this speech)"}
+    },
+    {
+      "speech_id": "nl.proc.sgd.d.195019510000563.7.2",
+      "expected": {"date": "1950-11-10", "speaker": "Holtrop", "role": "mp", "party_ref": null},
+      "updates": {"speaker": "Welter", "party_ref": "nl.p.knp", "member_ref": "nl.m.01520"},
+      "source_url": "https://resolver.kb.nl/resolve?urn=sgd:mpeg21:19501951:0000563:pdf",
+      "source_locations": ["Official scan, printed page 426 (PDF page 14), both columns; continuing headers on pages 427-430", "Data/1950/nl.proc.sgd.d.195019510000563.xml: topic .7, stage direction .7.1 and speech .7.2", "https://www.parlement.com/biografie/chjim-charles-welter"],
+      "reason": "The original scan starts the contribution with De heer Welter. Within that speech, Welter quotes central-bank president Holtrop. The parser treated the quoted attribution as a speaker change. The stored excerpt belongs to Welter; its text is retained exactly. The earlier part of Welter's contribution was parsed into a stage direction, which is documented but not silently appended to the coded excerpt.",
+      "biography": {"name": "Charles Welter", "url": "https://www.parlement.com/biografie/chjim-charles-welter", "parties": "KNP (at the time of this speech)"}
+    },
+    {
+      "speech_id": "nl.proc.sgd.d.195919600002136.2.21",
+      "expected": {"date": "1960-02-18", "speaker": "Schüüuiis", "role": "mp", "party_ref": null},
+      "updates": {"speaker": "Schilthuis", "party_ref": "nl.p.pvda", "member_ref": "nl.m.01196"},
+      "source_url": "https://resolver.kb.nl/resolve?urn=sgd:mpeg21:19591960:0002136:pdf",
+      "source_locations": ["Official scan, printed page 3690 (PDF page 28), left-column speaker heading", "Data/1960/nl.proc.sgd.d.195919600002136.xml: speeches .2.3 and .2.21", "https://www.parlement.com/biografie/mr-ap-tineke-schilthuis"],
+      "reason": "The scan explicitly identifies Mejuffrouw Schilthuis (P.v.d.A.). The XML preserves the party attribute but fails to resolve party-ref because of OCR damage to the name. Another contribution in the same sitting supplies the matching member reference.",
+      "biography": {"name": "Tineke Schilthuis", "url": "https://www.parlement.com/biografie/mr-ap-tineke-schilthuis", "parties": "PvdA"}
+    },
+    {
+      "speech_id": "nl.proc.sgd.d.196419650000782.5.6",
+      "expected": {"date": "1965-02-23", "speaker": "Scholten, Minister van Justitie", "role": "mp", "party_ref": null},
+      "updates": {"speaker": "Ynso Scholten", "role": "government", "function.": "minister", "member_ref": "nl.m.01976", "speaking_capacity": "Minister of Justice"},
+      "source_url": "https://resolver.kb.nl/resolve?urn=sgd:mpeg21:19641965:0000782:pdf",
+      "source_locations": ["Data/1960/nl.proc.sgd.d.196419650000782.xml: speeches .5.6 and .5.9", "https://www.parlement.com/biografie/mr-y-ynso-scholten"],
+      "reason": "The title and parliamentary page header identify Minister Scholten. Another turn in the same debate is correctly marked government/minister with member_ref nl.m.01976. Ynso Scholten was justice minister on this date. The biography match to Willem Scholten was incorrect. The source's absent party_ref is retained for the ministerial speech; personal affiliation is recorded in the verified biography.",
+      "biography": {"name": "Ynso Scholten", "url": "https://www.parlement.com/biografie/mr-y-ynso-scholten", "parties": "CHU (personal affiliation; speaking as minister)"}
+    },
+    {
+      "speech_id": "nl.proc.sgd.d.196819690000711.6.2",
+      "expected": {"date": "1968-09-24", "speaker": "Polak, Minister van Justitie", "role": "mp", "party_ref": null},
+      "updates": {"speaker": "Carel Polak", "role": "government", "function.": "minister", "member_ref": "nl.m.01818", "speaking_capacity": "Minister of Justice"},
+      "source_url": "https://resolver.kb.nl/resolve?urn=sgd:mpeg21:19681969:0000711:pdf",
+      "source_locations": ["Data/1960/nl.proc.sgd.d.196819690000711.xml: speeches .6.2 and .6.4", "https://www.parlement.com/biografie/mr-chf-carel-polak"],
+      "reason": "The title and page header identify Minister Polak. Adjacent replies are correctly marked government/minister with member_ref nl.m.01818. Carel Hendrik Frederik Polak was justice minister on this date. The biography match to Henri Polak was incorrect. The source's absent party_ref is retained for the ministerial speech; personal affiliation is recorded in the verified biography.",
+      "biography": {"name": "Carel Polak", "url": "https://www.parlement.com/biografie/mr-chf-carel-polak", "parties": "VVD (personal affiliation; speaking as minister)"}
+    },
+    {
+      "speech_id": "nl.proc.sgd.d.197319740000729.3.47",
+      "expected": {"date": "1974-02-12", "speaker": "Van Veenen", "role": "mp", "party_ref": null},
+      "updates": {"speaker": "van Veenendaal-van Meggelen", "party_ref": "nl.p.ds70", "member_ref": "nl.m.01720"},
+      "source_url": "https://resolver.kb.nl/resolve?urn=sgd:mpeg21:19731974:0000729:pdf",
+      "source_locations": ["Official scan, printed page 2436 (PDF page 34), left-column speaker heading", "Data/1970/nl.proc.sgd.d.197319740000729.xml: speeches .3.47, .3.49 and .3.51", "https://www.parlement.com/biografie/s-fia-van-veenendaal-van-meggelen"],
+      "reason": "The scan identifies Mevrouw Van Veenendaal-van Meggelen (DS'70). The parser split an OCR-damaged surname between the speaker field and the text. Adjacent turns confirm party and member references. Her earlier state-secretary office had ended in 1972; this is an MP contribution.",
+      "biography": {"name": "Fia van Veenendaal-van Meggelen", "url": "https://www.parlement.com/biografie/s-fia-van-veenendaal-van-meggelen", "parties": "DS'70 (at the time of this speech)"}
+    },
+    {
+      "speech_id": "nl.proc.ob.d.h-tk-19961997-637-661.1.6.18",
+      "expected": {"date": "1996-10-10", "speaker": "Van Middelkoop", "role": "mp", "party_ref": null},
+      "updates": {"party_ref": "nl.p.gpv", "speaking_capacity": "Speaking for the parliamentary committee on climate change"},
+      "source_url": "https://zoek.officielebekendmakingen.nl/h-tk-19961997-637-661.html",
+      "source_locations": ["Official proceedings: reply beginning Ik heb het niet over kernenergie als zodanig gehad; later statement Zolang ik hier sta, sta ik hier namens de hele commissie", "https://www.parlement.com/biografie/e-eimert-van-middelkoop"],
+      "reason": "Van Middelkoop was a GPV MP, but this contribution represents the parliamentary climate committee. Party metadata records affiliation, not an assertion that the committee's argument is a GPV position. The speaking capacity is retained as a separate field.",
+      "biography": {"name": "Eimert van Middelkoop", "url": "https://www.parlement.com/biografie/e-eimert-van-middelkoop", "parties": "GPV (at the time of this speech)"}
+    },
+    {
+      "speech_id": "nl.proc.ob.d.h-tk-20002001-338-357.1.9.1",
+      "expected": {"date": "2000-09-28", "speaker": "Van Middelkoop", "role": "mp", "party_ref": null},
+      "updates": {"party_ref": "nl.p.gpv", "parliamentary_group_as_recorded": "RPF/GPV"},
+      "source_url": "https://zoek.officielebekendmakingen.nl/h-tk-20002001-338-357.html",
+      "source_locations": ["Official proceedings: Van Middelkoop (RPF/GPV), speech beginning Mevrouw de voorzitter! Met dit wetsvoorstel", "https://www.parlement.com/biografie/e-eimert-van-middelkoop"],
+      "reason": "The proceedings identify the joint parliamentary group RPF/GPV. GPV is retained as the component-party affiliation, consistent with this corpus's coding of Van Middelkoop in 1998; the verbatim group label is separately retained rather than treating the joint group as GPV alone. This is before the group adopted the ChristenUnie name in March 2001.",
+      "biography": {"name": "Eimert van Middelkoop", "url": "https://www.parlement.com/biografie/e-eimert-van-middelkoop", "parties": "GPV; parliamentary group RPF/GPV (as recorded in this sitting)"}
+    },
+    {
+      "speech_id": "nl.proc.ob.d.h-tk-20112012-52-9.1.12.1",
+      "expected": {"date": "2012-02-09", "speaker": "Gerbrandy (EP/D66)", "role": "mp", "party_ref": null},
+      "updates": {"speaker": "Gerben-Jan Gerbrandy", "role": "mep", "party_ref": "nl.p.d66", "speaking_capacity": "Visiting Member of the European Parliament"},
+      "source_url": "https://zoek.officielebekendmakingen.nl/h-tk-20112012-52-9.html",
+      "source_locations": ["Official proceedings: the chair welcomes Dutch MEPs and assigns their speaking time; Gerbrandy (EP/D66) begins Voorzitter. Het gewest Utrecht", "https://www.europarl.europa.eu/meps/en/96940/GERBEN-JAN_GERBRANDY/home"],
+      "reason": "The proceedings explicitly identify an EP/D66 speaker participating as a visiting MEP. This is Gerben-Jan Gerbrandy, not Pieter Sjoerds Gerbrandy, whose biography was incorrectly matched. Retain the included observation and its analytical codes; any decision to exclude MEP contributions is a separate research-scope decision.",
+      "biography": {"name": "Gerben-Jan Gerbrandy", "url": "https://www.europarl.europa.eu/meps/en/96940/GERBEN-JAN_GERBRANDY/home", "parties": "D66"}
+    },
+    {
+      "speech_id": "nl.proc.ob.d.h-tk-20172018-93-4.1.71.1",
+      "expected": {"date": "2018-06-13", "speaker": "Asscher", "role": "government", "party_ref": "nl.p.pvda"},
+      "updates": {"role": "mp"},
+      "source_url": "https://zoek.officielebekendmakingen.nl/h-tk-20172018-93-4.html",
+      "source_locations": ["Official proceedings: Asscher (PvdA), contribution beginning Voorzitter, heel kort. Ik vind het merkwaardig", "https://parlement.com/biografie/dr-lf-lodewijk-asscher"],
+      "reason": "The government-role consistency check found this opposite-direction error. Asscher speaks as a PvdA MP in June 2018; his ministerial office ended in October 2017. The recorded party, speaker, member reference and text are retained."
+    }
+  ]
+}

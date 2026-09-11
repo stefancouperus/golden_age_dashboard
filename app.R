@@ -8,6 +8,9 @@ suppressPackageStartupMessages({
   library(htmltools)
 })
 
+source("R/metadata_corrections.R", local = TRUE)
+metadata_corrections <- load_metadata_corrections()
+
 if (!"localdocs" %in% names(shiny::resourcePaths())) {
   shiny::addResourcePath("localdocs", normalizePath(getwd(), winslash = "/", mustWork = TRUE))
 }
@@ -960,6 +963,7 @@ normalize_input_data <- function(df) {
   date_col <- first_existing(c("date", "datum"), nms)
   speaker_col <- first_existing(c("speaker", "spreker"), nms)
   party_col <- first_existing(c("party_ref", "party", "partij"), nms)
+  role_col <- first_existing(c("role", "speaker_role"), nms)
   text_col <- if ("text" %in% nms) "text" else NA_character_
   source_col <- first_existing(c("source_file", "source_url", "url"), nms)
   text_en_col <- first_existing(c("text_en", "translation_en"), nms)
@@ -986,7 +990,11 @@ normalize_input_data <- function(df) {
     date = as.Date(df[[date_col]]),
     speaker = if (!is.na(speaker_col)) as.character(df[[speaker_col]]) else "Unknown speaker",
     party_ref = if (!is.na(party_col)) as.character(df[[party_col]]) else "unknown",
+    role = if (!is.na(role_col)) as.character(df[[role_col]]) else "unknown",
+    speaking_capacity = if ("speaking_capacity" %in% nms) as.character(df$speaking_capacity) else "",
+    parliamentary_group_as_recorded = if ("parliamentary_group_as_recorded" %in% nms) as.character(df$parliamentary_group_as_recorded) else "",
     source_file = if (!is.na(source_col)) as.character(df[[source_col]]) else NA_character_,
+    source_url_verified = if ("source_url_verified" %in% nms) as.character(df$source_url_verified) else "",
     include_for_coding = if (!is.na(include_col)) as_true_flag(df[[include_col]]) else TRUE,
     temporal_grammar_code_raw = if (!is.na(tg_code_col)) as.character(df[[tg_code_col]]) else NA_character_,
     symbolic_work_code_raw = if (!is.na(sw_code_col)) as.character(df[[sw_code_col]]) else NA_character_,
@@ -1030,13 +1038,9 @@ normalize_input_data <- function(df) {
         unname(sw_labels[symbolic_work_code])
       ),
       year = as.integer(format(date, "%Y")),
-      party_clean = {
-        p0 <- ifelse(is.na(party_ref), "", trimws(as.character(party_ref)))
-        p1 <- sub("^nl\\.p\\.", "", p0)
-        p2 <- trimws(p1)
-        p3 <- ifelse(tolower(p2) %in% c("", "na", "n/a", "none", "unknown"), "government", p2)
-        p3
-      },
+      role = tolower(trimws(ifelse(is.na(role), "unknown", role))),
+      party_clean = dashboard_party_label(party_ref, role),
+      source_file = ifelse(!is.na(source_url_verified) & nzchar(source_url_verified), source_url_verified, source_file),
       combo = paste(temporal_grammar_code, symbolic_work_code, sep = " + "),
       text_en = ifelse(is.na(text_en) | !nzchar(text_en), "", text_en),
       translation_model = ifelse(is.na(translation_model), "", translation_model),
@@ -1107,7 +1111,7 @@ load_snippet_translation_map <- function(
     distinct(speech_id, .keep_all = TRUE)
 }
 
-df_final <- load_dashboard_input()
+df_final <- apply_speech_metadata_corrections(load_dashboard_input(), metadata_corrections)
 
 # Restrict dashboard scope to the paper period (inclusive): 1945-01-01 to 2024-12-31.
 paper_start_date <- as.Date("1945-01-01")
@@ -1246,6 +1250,8 @@ if (!nrow(speaker_bio_map)) {
     office_tbl = legislator_tables$office
   )
 }
+
+speaker_bio_map <- apply_biography_metadata_corrections(speaker_bio_map, metadata_corrections)
 
 if (nrow(speaker_bio_map)) {
   df_dash <- df_dash %>% left_join(speaker_bio_map, by = "speech_id")
@@ -1704,6 +1710,7 @@ ui <- page_fluid(
           div(
             class = "panel-card top-right-card top-right-card-dutch",
             div(class = "dutch-header-slot", uiOutput("header_badges_row")),
+            uiOutput("speech_context_note"),
             uiOutput("dutch_zoom_controls"),
             uiOutput("dutch_text"),
             br(),
@@ -1779,7 +1786,7 @@ server <- function(input, output, session) {
 
     display_name <- ifelse(nzchar(bio_name), bio_name, nm)
     parts <- split_initials_surname(display_name)
-    is_government <- identical(tolower(trimws(as.character(sp$party_clean[[1]]))), "government")
+    is_government <- identical(sp$role[[1]], "government")
 
     leg_birth <- if (!is.na(sp$speaker_bio_birth[[1]])) format(as.Date(sp$speaker_bio_birth[[1]]), "%Y-%m-%d") else ""
     leg_death <- if (!is.na(sp$speaker_bio_death[[1]])) format(as.Date(sp$speaker_bio_death[[1]]), "%Y-%m-%d") else ""
@@ -1796,7 +1803,7 @@ server <- function(input, output, session) {
     leg_url <- trimws(ifelse(is.na(sp$speaker_bio_url[[1]]), "", as.character(sp$speaker_bio_url[[1]])))
 
     wiki <- NULL
-    use_wiki <- !identical(status, "matched")
+    use_wiki <- !status %in% c("matched", "verified")
     if (use_wiki) wiki <- get_wiki_cached(nm)
     fallback_url <- if (is.null(wiki)) wiki_search_url(nm) else wiki$url
 
@@ -1814,7 +1821,9 @@ server <- function(input, output, session) {
       gov_period = if (is_government) {
         ifelse(nzchar(leg_gov_per), leg_gov_per, ifelse(is.null(wiki), "", wiki$gov_period))
       } else "",
-      source = ifelse(identical(status, "matched"), "legislatoR", "wikipedia fallback"),
+      source = if (identical(status, "verified")) {
+        sp$speaker_bio_source[[1]]
+      } else if (identical(status, "matched")) "legislatoR" else "wikipedia fallback",
       profile_url = if (nzchar(leg_url)) leg_url else fallback_url,
       match_status = status
     )
@@ -3120,6 +3129,22 @@ server <- function(input, output, session) {
 
     paste0(base, "alle-index/?search=", URLencode(p_raw, reserved = TRUE))
   }
+
+  output$speech_context_note <- renderUI({
+    sp <- selected_speech()
+    if (is.null(sp)) return(NULL)
+    role_label <- switch(sp$role[[1]],
+      government = "Government speaker",
+      mp = "Member of the Tweede Kamer",
+      mep = "Member of the European Parliament",
+      "Role not recorded"
+    )
+    details <- c(role_label, sp$speaking_capacity[[1]])
+    group <- sp$parliamentary_group_as_recorded[[1]]
+    if (!is.na(group) && nzchar(group)) details <- c(details, paste0("Parliamentary group as recorded: ", group))
+    details <- unique(details[!is.na(details) & nzchar(details)])
+    div(class = "helper-text", style = "margin:0 0 8px 0;", paste(details, collapse = " · "))
+  })
 
   output$header_badges_row <- renderUI({
     sp <- selected_speech()

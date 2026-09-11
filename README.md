@@ -1,6 +1,6 @@
 # "Golden Age" Politics Dashboard
 
-Interactive R Shiny dashboard for exploring how Dutch members of parliament used
+Interactive R Shiny dashboard for exploring how speakers in Dutch parliamentary debate used
 the *Gouden Eeuw* ("Golden Age") as a mnemonic trope between 1945 and 2024.
 
 The dashboard presents 447 coded speeches retrieved from a corpus of roughly
@@ -47,7 +47,19 @@ shiny::runApp(".")
   `dictplusseed.csv`: dictionaries used to highlight retrieval terms.
 
 The RDS files are used by the app; CSV copies are included for inspection and
-reuse. No API key is stored in this repository. Optional on-demand translation
+reuse. These files retain the original research data. The app applies ten
+source-checked metadata corrections from `data/metadata_corrections.json` when
+loading them. See the [metadata audit](docs/metadata-audit.md) for the changes,
+sources and corrected role counts. Reuse that ledger when analysing the data;
+reading a raw RDS or CSV alone will not include the corrections.
+
+Run the data and app-integration checks from the repository root:
+
+```sh
+Rscript --vanilla tests/metadata_corrections.R
+```
+
+No API key is stored in this repository. Optional on-demand translation
 uses a LibreTranslate endpoint configured through `LIBRETRANSLATE_URL` and,
 where required, `LIBRETRANSLATE_API_KEY`.
 
