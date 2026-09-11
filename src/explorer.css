@@ -483,7 +483,7 @@ legend,
   border-collapse: separate;
   border-spacing: 5px;
   width: 100%;
-  min-width: 585px;
+  min-width: 46rem;
   table-layout: fixed;
   margin: 15px -5px;
 }
@@ -501,7 +501,7 @@ legend,
   padding: 4px 0;
 }
 .matrix th:first-child {
-  width: 136px;
+  width: 8.5rem;
   text-align: left;
 }
 .matrix th .code {
@@ -513,6 +513,18 @@ legend,
   font-size: 0.75rem;
   padding: 6px;
   gap: 5px;
+}
+.matrix th .code b {
+  flex-shrink: 0;
+}
+.matrix th .code-label {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.matrix thead .code {
+  flex-direction: column;
+  min-height: 68px;
+  gap: 3px;
 }
 .matrix tbody th .code {
   justify-content: start;
@@ -718,9 +730,6 @@ legend,
   .result-heading h2 > span {
     font-size: 0.8rem;
   }
-  .matrix th:first-child {
-    width: 118px;
-  }
   .information-grid,
   .codebook-columns {
     gap: 35px;
@@ -766,9 +775,6 @@ legend,
   }
   .patterns-panel > .panel-heading {
     flex-wrap: wrap;
-  }
-  .matrix {
-    min-width: 580px;
   }
   .information-page h1 {
     font-size: 2.2rem;

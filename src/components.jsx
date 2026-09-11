@@ -33,7 +33,7 @@ export function Code({ id, focusable = true }) {
       style={{ "--code-color": c.color, "--code-text": foreground(c.color) }}
     >
       <b>{id}</b>
-      {c.short || c.label}
+      <span className="code-label">{c.short || c.label}</span>
     </CodeHint>
   );
 }
