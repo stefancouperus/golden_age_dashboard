@@ -1,109 +1,125 @@
-# "Golden Age" Politics Dashboard
+# Golden Age Politics
 
-Interactive dashboard for exploring how speakers in Dutch parliamentary debate used
-the *Gouden Eeuw* ("Golden Age") as a mnemonic trope between 1945 and 2024.
+A static research explorer for the *Gouden Eeuw* (“Golden Age”) in Dutch
+parliamentary speech, 1945–2024. The dashboard presents 447 coded contributions
+by 244 reviewed speakers, with an accessible introduction and detailed research tools.
 
-The dashboard presents 447 coded speeches retrieved from a corpus of roughly
-three million parliamentary speeches. It supports exploration by period, party,
-speaker, temporal grammar, and symbolic work, and links observations back to
-official parliamentary records where possible.
+The new React/Vite website replaces the Shiny interface in this repository.
+Its data come directly from the **updated research dataset**, captured at a
+specific commit. The website does not apply correction overlays to the old RDS.
 
-## Use the dashboard
+## Explore
 
-The deployed dashboard is available at:
+- Search full Dutch speeches, English evidence, and original or reviewed names.
+- Combine period, party, speaker, speaking role, and coding filters.
+- Explore a timeline and all 20 temporal-grammar × symbolic-work combinations.
+- Read paired evidence translations, coding rationales and full Dutch speeches.
+- Follow reviewed Parlement.com biographies and original parliamentary records.
+- Share a selection or individual speech by URL; download filtered or full CSV data.
 
-<https://stefancouperus.shinyapps.io/golden-age-dashboard/>
+Temporal grammar uses four distinct blues; symbolic work uses five amber/orange
+shades. Text labels identify every code. Government role and recorded party
+are separate filters. Verbeek’s contribution remains included provisionally,
+with its explicit Eerste Kamer scope note.
 
 ## Run locally
 
-The app requires R 4.3 or newer. From the repository root, install the required
-packages and start Shiny:
-
-```r
-install.packages(c(
-  "shiny", "bslib", "ggplot2", "dplyr", "stringr", "DT", "htmltools",
-  "httr", "jsonlite", "plotly"
-))
-
-shiny::runApp(".")
-```
-
-An `renv.lock` file records the package versions used for this release. To
-restore that environment instead:
-
-```r
-install.packages("renv")
-renv::restore()
-shiny::runApp(".")
-```
-
-## Repository contents
-
-- `app.R`: dashboard user interface, data preparation, and server logic.
-- `ge_final_45_24.rds` and `ge_final_45_24.csv`: 447 coded speeches used by the dashboard.
-- `df_snippets_translated.*`: precomputed English translations of coded evidence snippets.
-- `data/speaker_profiles.json`: reviewed Parlement.com links for all 244 people,
-  with explicit assignments for all 447 contributions. See the [speaker-link audit](docs/speaker-links.md).
-- `df_final_speaker_bio_map.*`: legacy biography matches, retained for audit only;
-  the app no longer loads them or uses Wikipedia as a biography fallback.
-- `gouden_eeuw_seed_dictionary*.csv`, `seed dictionary_add.csv`, and
-  `dictplusseed.csv`: dictionaries used to highlight retrieval terms.
-
-The published RDS and CSV datasets contain the corrected metadata and reviewed
-speaker names directly. All 447 contributions have the same names and profile
-links as the research repository. `speaker_original` preserves the original
-corpus label; `speaker_source_label` preserves that label after the earlier
-OCR/attribution repairs. The original files remain in Git history at `a619446`.
-
-The app validates the eleven [metadata repairs](docs/metadata-audit.md) and
-the [speaker registry](docs/speaker-links.md) when loading data. Verbeek's
-Eerste Kamer speech remains included provisionally with a visible
-`sample_scope_note` identifying it as outside the intended Tweede Kamer scope.
-
-Run the data and app-integration checks from the repository root in a clone
-with Git history (used for preservation comparisons):
+Use Node.js 22.12+ (Node 22 LTS recommended) and Python 3 for the data-preservation
+checks. R is needed only when deliberately regenerating the website data.
 
 ```sh
-Rscript --vanilla tests/metadata_corrections.R
-Rscript --vanilla tests/speaker_profiles.R
+npm ci
+npm run dev
 ```
 
-Speaker panels link to the full biography on Parlement.com and show the role and
-recorded affiliation at the selected contribution. Speaker filters and statistics
-use the reviewed identities, distinguishing shared surnames and combining member
-references that changed between corpus versions. Biography prose and photos are
-not copied into the dashboard. These repository updates have not been redeployed
-to the existing Shiny service.
+Open the local URL printed by Vite. To check and build the production website:
 
-No API key is stored in this repository. Optional on-demand translation
-uses a LibreTranslate endpoint configured through `LIBRETRANSLATE_URL` and,
-where required, `LIBRETRANSLATE_API_KEY`.
+```sh
+npm test
+npm run build
+npm run preview
+```
 
-## Related research
+The deployable site is `dist/`. It needs only static hosting.
 
-The dashboard accompanies:
+## Publish with GitHub Pages
 
-> Couperus, Stefan, and Martijn Schoonvelde. "Golden Age Politics: A
-> Computational-Interpretive Analysis of the 'Gouden Eeuw' as a Trope in Dutch
-> Parliamentary Speech, 1945-2024." Forthcoming in *Revived Futures: The Turn
+The [build and publish workflow](.github/workflows/pages.yml) checks the data
+and interface components, builds the website, and uploads the `dist/` artifact.
+Publication runs from `main` after Pages is available.
+
+The public repository is configured to publish through GitHub Actions at:
+
+**[Open the dashboard](https://stefancouperus.github.io/golden_age_dashboard/)**
+
+Pushes to `main` rebuild and publish after the checks pass. To republish without
+a code change, choose **Actions → Build and publish dashboard → Run workflow**.
+The workflow reports the deployment status and live URL. Only `dist/` is published.
+
+The site uses relative assets and hash-based shared selections, so it supports
+both the repository path and a future custom domain. When that domain is chosen,
+configure it in Pages and its DNS settings; the application needs no route rewrite.
+
+## Updated research data
+
+The source is [`hjmschoonvelde/gouden_eeuw_project`](https://github.com/hjmschoonvelde/gouden_eeuw_project),
+`data/derived/ge_final_45_24.csv`. The exact upstream commit and SHA-256 digest are
+recorded in [`data/research/source.json`](data/research/source.json).
+
+To adopt a later research update explicitly:
+
+```sh
+python3 scripts/sync_research_data.py
+Rscript --vanilla scripts/export_site_data.R
+npm test
+npm run build
+```
+
+The R export requires `jsonlite`. Review and commit the source snapshot, manifest,
+and regenerated `public/data/` files together. Normal builds use the committed
+snapshot and do not fetch a changing upstream branch.
+
+The export preserves speech text, codes, reviewed identities, original speaker
+labels, biographies, role, and scope notes. Existing precomputed translations
+join strictly by speech ID; translation files do not supply speaker metadata.
+All evidence pairs must be present. A future change to the analytical sample or
+coding scheme requires reviewing the exporter’s explicit invariants and tests.
+
+`gl` and `groenlinks` are combined under the displayed GroenLinks filter;
+`party_ref` remains unchanged in the downloadable data. Missing affiliation is
+shown as “No affiliation recorded”, independently of speaking role.
+
+## Project files
+
+| Location | Purpose |
+| --- | --- |
+| `src/` | Interface, filtering, URL state, evidence reader and colours |
+| `scripts/` | Explicit research snapshot update and R-to-JSON export |
+| `data/research/` | Exact versioned upstream CSV and provenance |
+| `public/data/` | Website JSON and byte-identical research CSV download |
+| `tests/*.test.js` | Preservation, filters, exports, evidence alignment and component checks |
+| `docs/static-dashboard.md` | Implementation and validation record |
+
+The legacy `app.R`, R environment, root data files and earlier metadata audits
+remain available for research provenance and historical reproduction. The new
+website does not load them. They are excluded from `dist/`. The previous Shiny
+service has not been redeployed by this migration:
+<https://stefancouperus.shinyapps.io/golden-age-dashboard/>.
+
+## Research and citation
+
+> Couperus, Stefan, and Martijn Schoonvelde. “Golden Age Politics: A
+> Computational-Interpretive Analysis of the ‘Gouden Eeuw’ as a Trope in Dutch
+> Parliamentary Speech, 1945–2024.” Forthcoming in *Revived Futures: The Turn
 > to the Past in European Party Politics*, edited by Katarina Pettersson,
 > Katarina Eriksson, and Monika Menke. Palgrave Macmillan, 2026.
 
-The broader reproduction materials are maintained separately at
-<https://github.com/hjmschoonvelde/gouden_eeuw_project>.
-
-## Authors
-
-- Stefan Couperus, University of Groningen
-- Martijn Schoonvelde, University of Groningen
-
-## Citation
-
-Citation metadata are provided in `CITATION.cff`. DOI to be found here: https://zenodo.org/records/21003433
+Both authors are affiliated with the University of Groningen.
+Software citation metadata are provided in [`CITATION.cff`](CITATION.cff).
+The earlier dashboard record remains at <https://zenodo.org/records/21003433>.
 
 ## License
 
-The software source code is licensed under the MIT License; see `LICENSE`.
-The license does not grant rights over third-party content represented in the
-derived research data, including parliamentary speech text. Rights in that
-content remain subject to the terms of the original sources.
+The software source code is licensed under MIT; see [`LICENSE`](LICENSE).
+Third-party parliamentary texts remain subject to their original sources’ terms.
+Biography prose and photographs are not reproduced.

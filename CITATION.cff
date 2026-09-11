@@ -11,19 +11,21 @@ authors:
     family-names: Schoonvelde
     affiliation: University of Groningen
 abstract: >-
-  Interactive R Shiny dashboard for exploring how Dutch members of parliament
-  used the Gouden Eeuw (Golden Age) as a mnemonic trope between 1945 and 2024.
-  It presents 447 coded speeches and supports exploration by period, party,
-  speaker, temporal grammar, and symbolic work.
-version: 1.0.0
-date-released: 2026-06-28
+  Static research explorer for uses of the Gouden Eeuw (Golden Age) as a
+  mnemonic trope in Dutch parliamentary speech between 1945 and 2024.
+  It presents 447 coded contributions from the updated research dataset,
+  with reviewed speaker identities, paired Dutch and English evidence,
+  shared filters, coding combinations, and links to original proceedings.
+version: 2.0.0
+date-released: 2026-09-11
 license: MIT
 repository-code: "https://github.com/stefancouperus/golden_age_dashboard"
-url: "https://stefancouperus.shinyapps.io/golden-age-dashboard/"
+url: "https://stefancouperus.github.io/golden_age_dashboard/"
 keywords:
   - Dutch parliament
   - Golden Age
   - Gouden Eeuw
   - political memory
   - parliamentary speech
-  - R Shiny
+  - research dashboard
+  - React

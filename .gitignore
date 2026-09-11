@@ -10,3 +10,8 @@ draftpaper.pdf
 www/draft_paper.html
 *_cache.rds
 *.log
+node_modules/
+dist/
+.env
+.env.*
+!.env.example
