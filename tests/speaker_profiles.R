@@ -32,7 +32,7 @@ for (person in c("Martin Bosma", "Sandra Beckerman", "Tunahan Kuzu")) {
 }
 verbeek <- enriched[enriched$speech_id == "nl.proc.sgd.d.198319840000028.6.15.1", ]
 stopifnot(verbeek$speaker == "Jan Verbeek", verbeek$role == "senator")
-stopifnot(grepl("retained provisionally", verbeek$sample_scope_note))
+stopifnot(verbeek$sample_scope_note == "", verbeek$speaking_capacity == "")
 
 # Published RDS and CSV downloads carry the same names and reviewed metadata.
 published <- readRDS("ge_final_45_24.rds")

@@ -67,20 +67,6 @@ They do not change speech texts or analytical codes.
 | Martijn van Dam | Marcel van Dam | PvdA MP and contribution date |
 | Cees Veerman | Antoon Veerman | Ministerial office and contribution date |
 
-The same review identified **Jan Verbeek as an Eerste Kamer senator**. His
-1 May 1984 contribution is in an Eerste Kamer sitting, confirmed by the
-[original scan](https://resolver.kb.nl/resolve?urn=sgd:mpeg21:19831984:0000028:pdf),
-printed p. 896 / PDF p. 34, and his
-[biography](https://www.parlement.com/biografie/jw-jan-verbeek).
-The role is corrected to `senator` in both repositories.
-
-Jan Verbeek's 1 May 1984 speech is outside the intended Tweede Kamer scope.
-The original text itself retains Eerste Kamer page footers, independently of
-the biography match. It is retained provisionally in the 447-contribution
-sample at the researcher's request, pending a separate scope decision. This
-does not expand the intended scope of the study. The row-level
-`sample_scope_note` makes the exception visible without changing the original
-inclusion decision, coding or speech text.
 The corrected sample contains 375 Tweede Kamer MP contributions, 70 government
 contributions, one senator contribution and one visiting MEP contribution.
 

@@ -83,7 +83,6 @@ test("website uses the exact updated research snapshot, with all texts and ident
       governmentPositionEnd: "government_position_end",
       governmentMetadataSource: "government_metadata_source",
       partyRef: "party_ref",
-      scopeNote: "sample_scope_note",
       originalSpeaker: "speaker_original",
       sourceSpeaker: "speaker_source_label",
       tg: "temporal_grammar_code",
@@ -133,7 +132,7 @@ test("website uses the exact updated research snapshot, with all texts and ident
   });
 });
 
-test("role and affiliation stay separate; Verbeek remains with his explicit note", () => {
+test("role and affiliation stay separate", () => {
   assert.equal(
     filterSpeeches(speeches, { ...INITIAL, roles: ["government"] }).length,
     70,
@@ -161,7 +160,7 @@ test("role and affiliation stay separate; Verbeek remains with his explicit note
   assert.equal(wiebes.find((s) => s.date === "2019-04-02").capacity, "Minister of Economic Affairs and Climate Policy");
   const senator = filterSpeeches(speeches, { ...INITIAL, roles: ["senator"] });
   assert.equal(senator[0].speaker, "Jan Verbeek");
-  assert.match(senator[0].scopeNote, /retained provisionally/);
+  assert.equal(Object.hasOwn(senator[0], "scopeNote"), false);
   assert.equal(
     senator[0].source,
     "https://resolver.kb.nl/resolve?urn=sgd:mpeg21:19831984:0000028:pdf",

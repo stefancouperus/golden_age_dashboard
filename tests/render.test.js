@@ -78,7 +78,6 @@ test("research views render populated, exceptional and empty selections", async 
       outsideSelection: true,
       clearForSpeech: update,
     });
-    assert.match(reader, /retained provisionally/);
     assert.match(reader, /outside the current selection/);
     assert.match(reader, /Read the full Dutch speech/);
     assert.match(reader, /ENGLISH TRANSLATION/);

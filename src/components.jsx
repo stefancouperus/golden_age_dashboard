@@ -679,7 +679,6 @@ export function Reader({
           </button>
         </div>
       )}
-      {s.scopeNote && <p className="scope-note">{s.scopeNote}</p>}
       <div className="reader-content">
         <div className="language-control" aria-label="Evidence language">
           {[
@@ -862,11 +861,6 @@ export function Information({ navigate, copy }) {
             The intended scope is Tweede Kamer debate from 1945 to 2024. The
             earliest included contribution is from 1946. Government speakers and
             one visiting MEP are represented alongside Tweede Kamer members.
-          </p>
-          <p>
-            One Eerste Kamer contribution by Jan Verbeek on 1 May 1984 remains
-            provisionally included pending a separate scope decision, with a
-            visible note. This does not expand the intended scope of the study.
           </p>
           <p>
             Counts and percentages describe this selected sample. They do not

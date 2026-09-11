@@ -517,11 +517,6 @@ function App() {
                               <Code id={s.tg} focusable={false} />
                               <Code id={s.sw} focusable={false} />
                             </span>
-                            {s.scopeNote && (
-                              <span className="scope-indicator">
-                                Scope note
-                              </span>
-                            )}
                           </CodeHint>
                         ))}
                       </div>

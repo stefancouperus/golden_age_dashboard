@@ -11,22 +11,21 @@ exporter does not load the legacy RDS, metadata repair ledger, or biography
 matching code. The website publishes only the JSON needed by the explorer; the direct CSV download has been removed.
 
 - Research repository: https://github.com/hjmschoonvelde/gouden_eeuw_project
-- Commit: `6bc139b3d9068f3640faa4e05ca8afc0c1f185bf`
+- Commit: `2c976e9f3039cc60150aaea95e7cbfaefbcdd605`
 - File: `data/derived/ge_final_45_24.csv`
-- SHA-256: `efc32f7fca01008eb8e57ab5e199b8775d2fcaceef89ec534c3c5aa748e2806f`
+- SHA-256: `6a80797946dfef2b610a84b4567ba83cc87d7a6c31faf61148283cdbcf36c5d2`
 - 447 contributions, 244 reviewed people, and 1,870 paired evidence fragments.
 - Speaking roles: 375 Tweede Kamer members, 70 government contributions,
-  one visiting MEP, and one provisionally retained Eerste Kamer contribution.
+  one visiting MEP, and one Eerste Kamer contribution.
 
-Names, biography URLs, original labels, role, dated government positions and scope notes come from that
+Names, biography URLs, original labels, role and dated government positions come from that
 updated dataset. Dutch speech text and coding assignments are unchanged.
 Precomputed evidence translations join by speech ID and never provide identity
 metadata. `gl` and `groenlinks` share the displayed GroenLinks filter; original
 `party_ref` values come directly from the source snapshot. The
 [government metadata review](government-metadata.md) supplies verified affiliations
 for all 70 government contributions by 47 speakers and dated primary portfolios
-for every one. Government role remains separate from affiliation. Verbeek’s agreed provisional-retention note is
-visible in the reader and preserved in the website data.
+for every one. Government role remains separate from affiliation.
 
 ## Interface and interpretation
 
@@ -74,7 +73,7 @@ assets and hash state support both project-path and future custom-domain hosting
 
 - Exact upstream CSV digest and absence of the retired public CSV download.
 - Every speech’s full text, identity, biography, role, original labels, codes,
-  rationales, affiliation, dated government position and scope note compared
+  rationales, affiliation and dated government position compared
   with the updated research CSV.
 - Complete government affiliation coverage, office dates matched to speech dates,
   and changed portfolios for Eric Wiebes; party and speaking-role filters stay independent.

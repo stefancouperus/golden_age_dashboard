@@ -22,8 +22,7 @@ specific commit. The website does not apply correction overlays to the old RDS.
 
 Temporal grammar uses four distinct blues; symbolic work uses five amber/orange
 shades. Text labels identify every code. Government role and party
-are separate filters. Verbeek’s contribution remains included provisionally,
-with its explicit Eerste Kamer scope note.
+are separate filters.
 
 ## Run locally
 
@@ -89,7 +88,7 @@ and regenerated `public/data/` files together. Normal builds use the committed
 snapshot and do not fetch a changing upstream branch.
 
 The export preserves speech text, codes, reviewed identities, original speaker
-labels, biographies, role, and scope notes. Existing precomputed translations
+labels, biographies and role. Existing precomputed translations
 join strictly by speech ID; translation files do not supply speaker metadata.
 All evidence pairs must be present. A future change to the analytical sample or
 coding scheme requires reviewing the exporter’s explicit invariants and tests.

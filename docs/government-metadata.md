@@ -6,9 +6,9 @@ affiliations and confirms the existing CHU affiliation for Willem Scholten.
 It covers 51 ministerial and 19 state-secretary contributions, with 49 distinct
 dated primary offices.
 
-The [complete research audit](https://github.com/hjmschoonvelde/gouden_eeuw_project/blob/6bc139b3d9068f3640faa4e05ca8afc0c1f185bf/docs/government_metadata.md)
+The [complete research audit](https://github.com/hjmschoonvelde/gouden_eeuw_project/blob/2c976e9f3039cc60150aaea95e7cbfaefbcdd605/docs/government_metadata.md)
 links every person and office to Parlement.com. Its
-[machine-readable ledger](https://github.com/hjmschoonvelde/gouden_eeuw_project/blob/6bc139b3d9068f3640faa4e05ca8afc0c1f185bf/data/metadata/government_metadata.json)
+[machine-readable ledger](https://github.com/hjmschoonvelde/gouden_eeuw_project/blob/2c976e9f3039cc60150aaea95e7cbfaefbcdd605/data/metadata/government_metadata.json)
 preserves the preceding values, source links, dates and explicit speech assignments.
 
 The dashboard imports the enriched research CSV directly through the versioned
@@ -33,7 +33,7 @@ on a departure date. Eric Wiebes and Jo Ritzen have different positions for
 different included speech dates. Historic ministry names are preserved.
 
 The research CSVs and website retain all 447 contributions and all original
-speech text, evidence, coding, names and scope notes. All 1,870 evidence fragments
+speech text, evidence, coding and names. All 1,870 evidence fragments
 still align with the full speeches. The research party table and figure are
 regenerated; other analytical outputs are unchanged. Dataset preservation,
 dated office matching, party/role filters and rendered government details are

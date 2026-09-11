@@ -60,7 +60,7 @@ speeches <- lapply(seq_len(nrow(df)), function(i) list(
   party = party_key[[i]], partyLabel = unname(party_labels[party_key[[i]]]), partyRef = clean(df$party_ref[[i]]),
   role = df$role[[i]], capacity = clean(df$speaking_capacity[[i]]), group = clean(df$parliamentary_group_as_recorded[[i]]),
   governmentPosition = clean(df$government_position_nl[[i]]), governmentPositionStart = clean(df$government_position_start[[i]]), governmentPositionEnd = clean(df$government_position_end[[i]]), governmentMetadataSource = clean(df$government_metadata_source[[i]]),
-  scopeNote = clean(df$sample_scope_note[[i]]), source = source_link(df$speech_id[[i]], df$source_file[[i]]),
+  source = source_link(df$speech_id[[i]], df$source_file[[i]]),
   text = df$text[[i]], tg = df$temporal_grammar_code[[i]], sw = df$symbolic_work_code[[i]],
   tgRationale = clean(df$temporal_grammar_rationale[[i]]), swRationale = clean(df$symbolic_work_rationale[[i]]),
   inclusionRationale = clean(df$inclusion_rationale[[i]]), notes = clean(df$notes[[i]]),

@@ -206,13 +206,6 @@ legend,
 .result-heading h2 > span {
   font-size: 0.86rem;
 }
-.scope-indicator {
-  display: inline-block;
-  font-size: 0.75rem;
-  color: #825719;
-  margin-top: 10px;
-  border-bottom: 1px dotted #b28d4f;
-}
 .reader-eyebrow {
   display: flex;
   justify-content: space-between;

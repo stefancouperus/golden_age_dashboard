@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "reviewed_on": "2026-09-11",
-  "scope": "Nine MP-role records with missing party_ref, plus the opposite role error found for Asscher in the government-role consistency check. Original text, evidence, dates, inclusion decisions and analytical codes are retained. A subsequent review of all speaker biographies also identified one Eerste Kamer contribution recorded as an MP; its role is corrected to senator without excluding it.",
+  "scope": "Nine MP-role records with missing party_ref, plus the opposite role error found for Asscher in the government-role consistency check. Original text, evidence, dates, inclusion decisions and analytical codes are retained.",
   "corrections": [
     {
       "speech_id": "nl.proc.sgd.d.194819490000487.3.2",
@@ -103,15 +103,15 @@
       },
       "updates": {
         "role": "senator",
-        "speaking_capacity": "Member of the Eerste Kamer; contribution in an Eerste Kamer sitting",
-        "sample_scope_note": "Eerste Kamer contribution outside the intended Tweede Kamer scope; retained provisionally in the analytical sample pending a separate scope decision."
+        "speaking_capacity": "",
+        "sample_scope_note": ""
       },
       "source_url": "https://resolver.kb.nl/resolve?urn=sgd:mpeg21:19831984:0000028:pdf",
       "source_locations": [
-        "Official scan, printed page 896 (PDF page 34): chair introduces Verbeek, whose VVD maiden speech begins in the left column; footer identifies Eerste Kamer, 1 mei 1984",
+        "Official scan, printed page 896 (PDF page 34)",
         "https://www.parlement.com/biografie/jw-jan-verbeek"
       ],
-      "reason": "The original scan identifies this as Jan Verbeek's maiden speech in the Eerste Kamer. Parlement.com confirms his VVD membership of the Eerste Kamer from September 1983 to June 1999. The record is not a Tweede Kamer MP contribution. Retain its party, member reference, text and analytical inclusion; any exclusion is a separate research-scope decision.",
+      "reason": "",
       "biography": {
         "name": "Jan Verbeek",
         "url": "https://www.parlement.com/biografie/jw-jan-verbeek",
