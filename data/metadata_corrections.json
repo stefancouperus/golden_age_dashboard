@@ -103,7 +103,8 @@
       },
       "updates": {
         "role": "senator",
-        "speaking_capacity": "Member of the Eerste Kamer; contribution in an Eerste Kamer sitting"
+        "speaking_capacity": "Member of the Eerste Kamer; contribution in an Eerste Kamer sitting",
+        "sample_scope_note": "Eerste Kamer contribution outside the intended Tweede Kamer scope; retained provisionally in the analytical sample pending a separate scope decision."
       },
       "source_url": "https://resolver.kb.nl/resolve?urn=sgd:mpeg21:19831984:0000028:pdf",
       "source_locations": [

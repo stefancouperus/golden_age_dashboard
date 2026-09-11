@@ -1,7 +1,8 @@
 # Run from the repository root: Rscript --vanilla tests/speaker_profiles.R
 source("R/metadata_corrections.R")
 source("R/speaker_profiles.R")
-raw <- readRDS("ge_final_45_24.rds")
+source("tests/baseline_data.R")
+raw <- read_baseline_data()
 fixed <- apply_speech_metadata_corrections(raw, load_metadata_corrections())
 registry <- load_speaker_profiles()
 enriched <- apply_speaker_profiles(fixed, registry)
@@ -31,6 +32,19 @@ for (person in c("Martin Bosma", "Sandra Beckerman", "Tunahan Kuzu")) {
 }
 verbeek <- enriched[enriched$speech_id == "nl.proc.sgd.d.198319840000028.6.15.1", ]
 stopifnot(verbeek$speaker == "Jan Verbeek", verbeek$role == "senator")
+stopifnot(grepl("retained provisionally", verbeek$sample_scope_note))
+
+# Published RDS and CSV downloads carry the same names and reviewed metadata.
+published <- readRDS("ge_final_45_24.rds")
+csv <- read.csv("ge_final_45_24.csv", colClasses = "character", check.names = FALSE, na.strings = "NA")
+stopifnot(identical(published, enriched))
+for (nm in c("speech_id", "speaker", "speaker_original", "speaker_source_label",
+             "speaker_person_id", "speaker_profile_url", "sample_scope_note", "role", "party_ref")) {
+  expected <- ifelse(is.na(published[[nm]]), "", as.character(published[[nm]]))
+  actual <- ifelse(is.na(csv[[nm]]), "", csv[[nm]])
+  stopifnot(identical(expected, actual))
+}
+stopifnot(identical(apply_speech_metadata_corrections(published, load_metadata_corrections()), published))
 
 # A reviewed match cannot silently follow a changed date or a new observation.
 drift <- fixed

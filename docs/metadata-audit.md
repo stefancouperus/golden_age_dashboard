@@ -61,11 +61,20 @@ establish that a minister, committee representative or visiting MEP speaks for
 a Tweede Kamer party group. Separate capacity and group fields retain these
 distinctions and are shown in the Shiny speech reader.
 
+Jan Verbeek's 1 May 1984 speech is outside the intended Tweede Kamer scope.
+The original text itself retains Eerste Kamer page footers, independently of
+the biography match. It is retained provisionally in the 447-contribution
+sample at the researcher's request, pending a separate scope decision. This
+does not expand the intended scope of the study. The row-level
+`sample_scope_note` makes the exception visible without changing the original
+inclusion decision, coding or speech text.
+
 ## Reproducibility and limits
 
-- The original RDS and CSV files are unchanged. `R/metadata_corrections.R`
-  applies the reviewed ledger when the app loads, retains original metadata in
-  separate fields, and rejects unexpected changes to the reviewed source values.
+- The published RDS and CSV now contain reviewed names and corrected metadata
+  directly. Original labels are retained in `speaker_original`; original files
+  remain in Git history at `a619446`. `R/metadata_corrections.R` validates the
+  earlier corrections when the app loads and supports already corrected data.
 - All 447 speech IDs, texts, dates, evidence, rationales, inclusion decisions and
   temporal-grammar/symbolic-work assignments are unchanged. This is a metadata
   repair, not a recoding or a change to the analytical sample.

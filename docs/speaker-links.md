@@ -26,8 +26,20 @@ Sandra Beckerman and Tunahan Kuzu each have two member references across corpus
 versions. Conversely, surname labels such as Bakker, De Koning and Diepenhorst
 represent different people and must not be pooled. Display names follow the
 reviewed biography, generally using the given name shown in parentheses.
-Original research labels remain available in the registry and in
-`speaker_source_label`; the original dashboard RDS/CSV files are unchanged.
+Reviewed names are now written into both repositories' published datasets.
+`speaker_original` preserves the unmodified corpus label, while
+`speaker_source_label` preserves the label after the earlier OCR/attribution
+repairs. These are distinct from the reviewed full name in `speaker`.
+`speaker_person_id` and `speaker_profile_url` provide a stable identity and a
+direct biography link. The original dashboard files remain in Git history at
+`a619446`; the original research files remain at `05c5f4e`.
+
+The research analytic CSV updates 422 existing speaker labels, mostly by
+expanding surname-only labels to identify the person. These are not 422
+incorrect-person matches. The candidate file receives the same changes for
+the 447 overlapping contributions; the validation sample updates 41 labels
+among its 45 overlapping contributions. Names outside this reviewed sample
+are unchanged and have blank person/profile fields.
 
 The app's profile panel links to the biography and displays the selected
 contribution's date, role and recorded affiliation. It does not fetch biographies
@@ -59,8 +71,15 @@ The same review identified **Jan Verbeek as an Eerste Kamer senator**. His
 [original scan](https://resolver.kb.nl/resolve?urn=sgd:mpeg21:19831984:0000028:pdf),
 printed p. 896 / PDF p. 34, and his
 [biography](https://www.parlement.com/biografie/jw-jan-verbeek).
-The role is corrected to `senator` in both repositories. The observation stays
-in the 447-contribution sample; excluding it would be a research-scope change.
+The role is corrected to `senator` in both repositories.
+
+Jan Verbeek's 1 May 1984 speech is outside the intended Tweede Kamer scope.
+The original text itself retains Eerste Kamer page footers, independently of
+the biography match. It is retained provisionally in the 447-contribution
+sample at the researcher's request, pending a separate scope decision. This
+does not expand the intended scope of the study. The row-level
+`sample_scope_note` makes the exception visible without changing the original
+inclusion decision, coding or speech text.
 The corrected sample contains 375 Tweede Kamer MP contributions, 70 government
 contributions, one senator contribution and one visiting MEP contribution.
 

@@ -1,4 +1,4 @@
-# Explicit, sourced metadata repairs. Original research data remain unchanged.
+# Explicit, sourced metadata repairs; also validate already corrected datasets.
 load_metadata_corrections <- function(path = "data/metadata_corrections.json") {
   if (!file.exists(path)) stop("Missing metadata correction ledger: ", path)
   ledger <- jsonlite::fromJSON(path, simplifyVector = FALSE)
@@ -27,7 +27,7 @@ apply_speech_metadata_corrections <- function(df, ledger, strict = TRUE) {
     original_nm <- paste0(sub("[.]$", "", nm), "_original")
     if (!original_nm %in% names(df)) df[[original_nm]] <- df[[nm]]
   }
-  for (nm in c("speaking_capacity", "parliamentary_group_as_recorded", "source_url_verified", "metadata_correction_note")) {
+  for (nm in c("speaking_capacity", "parliamentary_group_as_recorded", "sample_scope_note", "source_url_verified", "metadata_correction_note")) {
     if (!nm %in% names(df)) df[[nm]] <- rep("", nrow(df))
   }
   for (entry in ledger$corrections) {
@@ -42,15 +42,19 @@ apply_speech_metadata_corrections <- function(df, ledger, strict = TRUE) {
         if (strict) stop("Expected metadata column absent: ", nm)
         next
       }
-      valid <- metadata_value_equal(df[[nm]][idx], entry$expected[[nm]])
+      # Published datasets use reviewed full names. Their intermediate source
+      # label remains the target of the earlier OCR/attribution corrections.
+      field <- if (nm == "speaker" && "speaker_source_label" %in% names(df)) "speaker_source_label" else nm
+      valid <- metadata_value_equal(df[[field]][idx], entry$expected[[nm]])
       if (nm %in% names(entry$updates)) {
-        valid <- valid || metadata_value_equal(df[[nm]][idx], entry$updates[[nm]])
+        valid <- valid || metadata_value_equal(df[[field]][idx], entry$updates[[nm]])
       }
       if (!valid) stop("Metadata differs from reviewed record: ", entry$speech_id, " / ", nm)
     }
     for (nm in names(entry$updates)) {
       if (!nm %in% names(df)) df[[nm]] <- rep(NA_character_, nrow(df))
-      df[[nm]][idx] <- if (is.null(entry$updates[[nm]])) NA_character_ else entry$updates[[nm]]
+      field <- if (nm == "speaker" && "speaker_source_label" %in% names(df)) "speaker_source_label" else nm
+      df[[field]][idx] <- if (is.null(entry$updates[[nm]])) NA_character_ else entry$updates[[nm]]
     }
     df$source_url_verified[idx] <- entry$source_url
     df$metadata_correction_note[idx] <- entry$reason

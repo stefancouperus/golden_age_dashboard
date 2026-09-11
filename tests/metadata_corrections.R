@@ -1,7 +1,8 @@
 # Run from the repository root: Rscript tests/metadata_corrections.R
 source("R/metadata_corrections.R")
 ledger <- load_metadata_corrections()
-raw <- readRDS("ge_final_45_24.rds")
+source("tests/baseline_data.R")
+raw <- read_baseline_data()
 bio_raw <- readRDS("df_final_speaker_bio_map.rds")
 fixed <- apply_speech_metadata_corrections(raw, ledger)
 bio <- apply_biography_metadata_corrections(bio_raw, ledger)

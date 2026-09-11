@@ -49,14 +49,19 @@ shiny::runApp(".")
 - `gouden_eeuw_seed_dictionary*.csv`, `seed dictionary_add.csv`, and
   `dictplusseed.csv`: dictionaries used to highlight retrieval terms.
 
-The RDS files are used by the app; CSV copies are included for inspection and
-reuse. These files retain the original research data. The app applies eleven
-source-checked metadata corrections from `data/metadata_corrections.json` when
-loading them. See the [metadata audit](docs/metadata-audit.md) for the changes,
-sources and corrected role counts. Reuse that ledger when analysing the data;
-reading a raw RDS or CSV alone will not include the corrections.
+The published RDS and CSV datasets contain the corrected metadata and reviewed
+speaker names directly. All 447 contributions have the same names and profile
+links as the research repository. `speaker_original` preserves the original
+corpus label; `speaker_source_label` preserves that label after the earlier
+OCR/attribution repairs. The original files remain in Git history at `a619446`.
 
-Run the data and app-integration checks from the repository root:
+The app validates the eleven [metadata repairs](docs/metadata-audit.md) and
+the [speaker registry](docs/speaker-links.md) when loading data. Verbeek's
+Eerste Kamer speech remains included provisionally with a visible
+`sample_scope_note` identifying it as outside the intended Tweede Kamer scope.
+
+Run the data and app-integration checks from the repository root in a clone
+with Git history (used for preservation comparisons):
 
 ```sh
 Rscript --vanilla tests/metadata_corrections.R

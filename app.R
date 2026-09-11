@@ -589,10 +589,13 @@ normalize_input_data <- function(df) {
     speech_id = if (!is.na(id_col)) as.character(df[[id_col]]) else sprintf("sp_%06d", seq_len(nrow(df))),
     date = as.Date(df[[date_col]]),
     speaker = if (!is.na(speaker_col)) as.character(df[[speaker_col]]) else "Unknown speaker",
+    speaker_original = if ("speaker_original" %in% nms) as.character(df$speaker_original) else as.character(df[[speaker_col]]),
+    speaker_source_label = if ("speaker_source_label" %in% nms) as.character(df$speaker_source_label) else as.character(df[[speaker_col]]),
     member_ref = if ("member_ref" %in% nms) as.character(df$member_ref) else NA_character_,
     party_ref = if (!is.na(party_col)) as.character(df[[party_col]]) else "unknown",
     role = if (!is.na(role_col)) as.character(df[[role_col]]) else "unknown",
     speaking_capacity = if ("speaking_capacity" %in% nms) as.character(df$speaking_capacity) else "",
+    sample_scope_note = if ("sample_scope_note" %in% nms) as.character(df$sample_scope_note) else "",
     parliamentary_group_as_recorded = if ("parliamentary_group_as_recorded" %in% nms) as.character(df$parliamentary_group_as_recorded) else "",
     source_file = if (!is.na(source_col)) as.character(df[[source_col]]) else NA_character_,
     source_url_verified = if ("source_url_verified" %in% nms) as.character(df$source_url_verified) else "",
@@ -2598,7 +2601,7 @@ server <- function(input, output, session) {
     sp <- selected_speech()
     if (is.null(sp)) return(NULL)
     role_label <- speaker_role_label(sp$role[[1]])
-    details <- c(role_label, sp$speaking_capacity[[1]])
+    details <- c(role_label, sp$speaking_capacity[[1]], sp$sample_scope_note[[1]])
     group <- sp$parliamentary_group_as_recorded[[1]]
     if (!is.na(group) && nzchar(group)) details <- c(details, paste0("Parliamentary group as recorded: ", group))
     details <- unique(details[!is.na(details) & nzchar(details)])
