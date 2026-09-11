@@ -8,6 +8,7 @@ import {
   TG,
   SW,
   filterSpeeches,
+  evidenceRanges,
   findRanges,
   foreground,
   matrixCounts,
@@ -357,4 +358,70 @@ test("structured filters reject malformed or unknown values before changing stat
     { deleteData: true },
   ])
     assert.throws(() => validateFilters(input, speeches));
+});
+
+test("overlapping evidence and search retain every label at exact text boundaries", () => {
+  const text = "abcdefghijklmnop";
+  const ranges = [
+    { start: 0, end: 6, family: "tg", evidenceId: "tg-1" },
+    { start: 4, end: 8, family: "tg", evidenceId: "tg-2" },
+    { start: 2, end: 10, family: "sw", evidenceId: "sw-1" },
+    { start: 12, end: 14, family: "sw", evidenceId: "sw-2" },
+    { start: 5, end: 13, family: "search" },
+  ];
+  const parts = textSegments(text, ranges);
+  assert.equal(parts.map((p) => p.text).join(""), text);
+  for (let i = 0; i < text.length; i++) {
+    const part = parts.find((p) => p.start <= i && p.end > i);
+    assert.equal(part.families.includes("tg"), i < 8);
+    assert.equal(
+      part.families.includes("sw"),
+      (i >= 2 && i < 10) || (i >= 12 && i < 14),
+    );
+    assert.equal(part.families.includes("search"), i >= 5 && i < 13);
+  }
+  assert.deepEqual(parts.find((p) => p.start === 5).evidenceIds, [
+    "tg-1",
+    "tg-2",
+    "sw-1",
+  ]);
+  const adjacent = textSegments("abcd", [
+    { start: 0, end: 2, family: "tg" },
+    { start: 2, end: 4, family: "sw" },
+  ]);
+  assert.deepEqual(
+    adjacent.map((p) => p.families),
+    [["tg"], ["sw"]],
+  );
+  const identical = textSegments("abcd", [
+    { start: 0, end: 4, family: "tg" },
+    { start: 0, end: 4, family: "sw" },
+  ]);
+  assert.deepEqual(
+    identical.map((p) => p.families),
+    [["tg", "sw"]],
+  );
+});
+
+test("full speeches simultaneously retain every TG and SW evidence fragment", () => {
+  let overlapping = 0;
+  for (const speech of speeches) {
+    const ranges = evidenceRanges(speech);
+    const parts = textSegments(speech.text, ranges);
+    assert.equal(parts.map((p) => p.text).join(""), speech.text);
+    for (const evidence of [...speech.evidence.tg, ...speech.evidence.sw]) {
+      assert(
+        parts.some((part) => part.evidenceIds.includes(evidence.id)),
+        `${speech.id}/${evidence.id}`,
+      );
+    }
+    if (
+      parts.some((p) => p.families.includes("tg") && p.families.includes("sw"))
+    )
+      overlapping++;
+  }
+  assert(overlapping > 0);
+  console.log(
+    `Both evidence dimensions preserved in all 447 speeches; ${overlapping} speeches contain overlapping evidence.`,
+  );
 });

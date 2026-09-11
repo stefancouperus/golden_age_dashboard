@@ -4,7 +4,12 @@ import { readFileSync } from "node:fs";
 import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { createServer } from "vite";
-import { INITIAL, prepareSpeeches } from "../src/domain.js";
+import {
+  INITIAL,
+  prepareSpeeches,
+  evidenceRanges,
+  textSegments,
+} from "../src/domain.js";
 
 test("research views render populated, exceptional and empty selections", async () => {
   const server = await createServer({
@@ -57,6 +62,31 @@ test("research views render populated, exceptional and empty selections", async 
     assert.match(reader, /Read the full Dutch speech/);
     assert.match(reader, /ENGLISH TRANSLATION/);
     assert(reader.includes(verbeek.biography));
+    assert.match(reader, /All evidence for both codes is highlighted/);
+    assert.match(reader, /--evidence-tg:/);
+    assert.match(reader, /--evidence-sw:/);
+    const overlapping = speeches.find((speech) =>
+      textSegments(speech.text, evidenceRanges(speech)).some(
+        (part) => part.families.includes("tg") && part.families.includes("sw"),
+      ),
+    );
+    const overlapReader = render(Reader, {
+      speech: overlapping,
+      copyLink: update,
+      filterSpeaker: update,
+      clearForSpeech: update,
+    });
+    assert(overlapReader.includes('class="text-highlight tg sw overlap"'));
+
+    for (const range of evidenceRanges(verbeek)) {
+      assert(
+        new RegExp(`data-evidence-ids="[^"]*${range.evidenceId}(?: |")`).test(
+          reader,
+        ),
+        range.evidenceId,
+      );
+    }
+
     const about = render(Information, { navigate: update, copy: update });
     assert.match(about, /572 candidate speeches/);
     assert.match(about, /<h2>Authors<\/h2>/);

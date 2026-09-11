@@ -8,6 +8,7 @@ import {
   MIN_YEAR,
   MAX_YEAR,
   dateLabel,
+  evidenceRanges,
   filterSpeeches,
   findRanges,
   foreground,
@@ -477,16 +478,46 @@ export function Patterns({ rows, state, update }) {
     </section>
   );
 }
-function Highlighted({ text, ranges, family }) {
-  return textSegments(text, ranges).map((part, i) =>
-    part.marked ? (
-      <mark key={i} className={`text-highlight ${family}`}>
+export function Highlighted({ text, ranges, speech }) {
+  return textSegments(text, ranges).map((part, i) => {
+    if (!part.marked)
+      return <React.Fragment key={i}>{part.text}</React.Fragment>;
+    const overlapping =
+      part.families.includes("tg") && part.families.includes("sw");
+    const labels = part.families.map((family) =>
+      family === "search"
+        ? "Search match"
+        : `${speech[family]} ${CODES[speech[family]].label}`,
+    );
+    return (
+      <mark
+        key={i}
+        className={[
+          "text-highlight",
+          ...part.families,
+          overlapping ? "overlap" : "",
+        ]
+          .filter(Boolean)
+          .join(" ")}
+        data-evidence-ids={
+          part.evidenceIds.length ? part.evidenceIds.join(" ") : undefined
+        }
+        data-search-match={
+          part.families.includes("search") ? "true" : undefined
+        }
+        title={labels.join(" + ")}
+        tabIndex={part.evidenceIds.length ? 0 : undefined}
+        aria-describedby={
+          part.families
+            .filter((family) => family !== "search")
+            .map((family) => `evidence-legend-${family}`)
+            .join(" ") || undefined
+        }
+      >
         {part.text}
       </mark>
-    ) : (
-      <React.Fragment key={i}>{part.text}</React.Fragment>
-    ),
-  );
+    );
+  });
 }
 function EvidenceBlock({ speech, dimension, language, locate }) {
   const [index, setIndex] = useState(0);
@@ -535,7 +566,7 @@ function EvidenceBlock({ speech, dimension, language, locate }) {
       <button
         className="text-button locate-evidence"
         disabled={!exact}
-        onClick={() => locate(dimension, current.nl)}
+        onClick={() => locate(current.id)}
       >
         Locate in the Dutch speech <span aria-hidden="true">↓</span>
       </button>
@@ -559,27 +590,37 @@ export function Reader({
   clearForSpeech,
 }) {
   const [language, setLanguage] = useState("both");
-  const [highlight, setHighlight] = useState({
-    family: "tg",
-    query: s.evidence.tg[0].nl,
-  });
   const [withinSearch, setWithinSearch] = useState("");
   const details = useRef(null),
     body = useRef(null);
-  const query = withinSearch || highlight.query;
-  const ranges = useMemo(() => findRanges(s.text, query), [s.text, query]);
-  function locate(family, query) {
+  const codedRanges = useMemo(() => evidenceRanges(s), [s.text, s.evidence]);
+  const searchRanges = useMemo(
+    () =>
+      findRanges(s.text, withinSearch).map((range) => ({
+        ...range,
+        family: "search",
+      })),
+    [s.text, withinSearch],
+  );
+  const ranges = useMemo(
+    () => [...codedRanges, ...searchRanges],
+    [codedRanges, searchRanges],
+  );
+  function locate(evidenceId) {
     setWithinSearch("");
-    setHighlight({ family, query });
     details.current.open = true;
-    requestAnimationFrame(() =>
-      body.current?.querySelector("mark")?.scrollIntoView({
+    requestAnimationFrame(() => {
+      const target = body.current?.querySelector(
+        `[data-evidence-ids~="${evidenceId}"]`,
+      );
+      target?.focus({ preventScroll: true });
+      target?.scrollIntoView({
         block: "center",
         behavior: matchMedia("(prefers-reduced-motion: reduce)").matches
           ? "instant"
           : "smooth",
-      }),
-    );
+      });
+    });
   }
   return (
     <article className="speech-reader" aria-label={`Speech by ${s.speaker}`}>
@@ -655,7 +696,16 @@ export function Reader({
           English text is a precomputed translation of the evidence fragments.
           The Dutch proceedings remain the source.
         </p>
-        <details className="full-text" ref={details}>
+        <details
+          className="full-text"
+          ref={details}
+          style={{
+            "--evidence-tg": CODES[s.tg].color,
+            "--evidence-tg-text": foreground(CODES[s.tg].color),
+            "--evidence-sw": CODES[s.sw].color,
+            "--evidence-sw-text": foreground(CODES[s.sw].color),
+          }}
+        >
           <summary>Read the full Dutch speech</summary>
           <div className="within-search">
             <label htmlFor="within-speech">Find within this speech</label>
@@ -667,33 +717,50 @@ export function Reader({
               onKeyDown={(e) => {
                 if (e.key === "Enter")
                   body.current
-                    ?.querySelector("mark")
+                    ?.querySelector("[data-search-match]")
                     ?.scrollIntoView({ block: "center" });
               }}
               placeholder="Search the Dutch text…"
             />
             {withinSearch && (
               <span role="status">
-                {ranges.length} match{ranges.length === 1 ? "" : "es"}
+                {searchRanges.length} match
+                {searchRanges.length === 1 ? "" : "es"}
               </span>
             )}
           </div>
           <p className="full-text-note">
-            Original corpus text, including OCR and page headers. Highlighted
-            text corresponds to{" "}
-            {withinSearch
-              ? "your search"
-              : highlight.family === "tg"
-                ? "the selected temporal-grammar evidence"
-                : "the selected symbolic-work evidence"}
-            .
+            All evidence for both codes is highlighted. Overlapping passages
+            carry two underlines in the corresponding code colours. The original
+            text, including OCR and page headers, is preserved.
           </p>
+          <div
+            className="evidence-legend"
+            aria-label="Evidence highlight colours"
+          >
+            <span id="evidence-legend-tg">
+              <mark className="text-highlight tg">{s.tg}</mark>{" "}
+              {CODES[s.tg].label}
+            </span>
+            <span id="evidence-legend-sw">
+              <mark className="text-highlight sw">{s.sw}</mark>{" "}
+              {CODES[s.sw].short || CODES[s.sw].label}
+            </span>
+            <span>
+              <mark className="text-highlight overlap">
+                {s.tg} + {s.sw}
+              </mark>{" "}
+              Both codes
+            </span>
+            {withinSearch && (
+              <span>
+                <mark className="text-highlight search">Search</mark> Dotted
+                outline
+              </span>
+            )}
+          </div>
           <div className="full-text-body" lang="nl" ref={body}>
-            <Highlighted
-              text={s.text}
-              ranges={ranges}
-              family={withinSearch ? "search" : highlight.family}
-            />
+            <Highlighted text={s.text} ranges={ranges} speech={s} />
           </div>
         </details>
         <details className="rationale record-notes">

@@ -294,12 +294,37 @@ export function findRanges(text, query) {
   }
   return ranges;
 }
+export function evidenceRanges(speech) {
+  return ["tg", "sw"].flatMap((family) =>
+    speech.evidence[family].flatMap((evidence) =>
+      findRanges(speech.text, evidence.nl).map((range) => ({
+        ...range,
+        family,
+        evidenceId: evidence.id,
+      })),
+    ),
+  );
+}
 export function textSegments(text, ranges) {
   const bounds = [
     ...new Set([0, text.length, ...ranges.flatMap((r) => [r.start, r.end])]),
   ].sort((a, b) => a - b);
-  return bounds.slice(0, -1).map((start, i) => ({
-    text: text.slice(start, bounds[i + 1]),
-    marked: ranges.some((r) => r.start <= start && r.end >= bounds[i + 1]),
-  }));
+  return bounds.slice(0, -1).map((start, i) => {
+    const end = bounds[i + 1];
+    const matches = ranges.filter(
+      (range) => range.start <= start && range.end >= end,
+    );
+    return {
+      text: text.slice(start, end),
+      start,
+      end,
+      marked: matches.length > 0,
+      families: ["tg", "sw", "search"].filter((family) =>
+        matches.some((range) => range.family === family),
+      ),
+      evidenceIds: [
+        ...new Set(matches.map((range) => range.evidenceId).filter(Boolean)),
+      ],
+    };
+  });
 }

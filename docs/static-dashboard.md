@@ -45,13 +45,20 @@ complete visual or accessibility compliance.
 The reader pairs original Dutch evidence with precomputed English translations,
 links the selected evidence to its location in the unchanged full text, and
 provides coding rationales, research notes, biographies and original proceedings.
-The mobile layout uses a native modal reader. Share links retain filters and
+Every TG and SW evidence fragment is highlighted simultaneously in the full
+Dutch text, using the same specific code colours and readable foregrounds as
+the matrix labels. Overlap uses a neutral background and two underline bands,
+one in each exact code colour. A visible legend explains the two codes and
+combined treatment; hover titles and keyboard descriptions identify the labels.
+Search adds a dotted outline without clearing the evidence highlights, and
+“Locate in the Dutch speech” moves to the requested fragment. The mobile layout
+uses a native modal reader. Share links retain filters and
 speech identifiers; browser back/forward restores the URL state. Relative
 assets and hash state support both project-path and future custom-domain hosting.
 
 ## Validation on 11 September 2026
 
-`npm test`: all 10 current checks pass. Coverage includes:
+`npm test`: all 12 current checks pass. Coverage includes:
 
 - Exact upstream CSV digest and absence of the retired public CSV download.
 - Every speech’s full text, identity, biography, role, original labels, codes,
@@ -63,6 +70,10 @@ assets and hash state support both project-path and future custom-domain hosting
 - Shared state round-trips at a root domain and repository path.
 - Timeline and all 20 matrix cells reconcile with the selected records.
 - Code-label and matrix text contrast.
+- Nested, identical and adjacent evidence ranges, plus searches crossing their
+  boundaries, preserve the original text and every applicable label.
+- All fragments remain represented simultaneously in all 447 speeches;
+  227 speeches have TG/SW evidence overlap.
 - Component rendering for filters, reader, About, exceptional records, and
   populated/empty charts; verified author links and the data-request note.
 - Old data-page URLs resolve to About while preserving their filters.

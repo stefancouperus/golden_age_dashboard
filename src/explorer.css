@@ -309,18 +309,57 @@ legend,
   padding: 1px 0;
   color: inherit;
   scroll-margin: 70px;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
 }
 .text-highlight.tg {
-  background: #e0eff8;
-  box-shadow: inset 0 -2px #448daf;
+  background: var(--evidence-tg);
+  color: var(--evidence-tg-text);
 }
 .text-highlight.sw {
-  background: #fff0cf;
-  box-shadow: inset 0 -2px #cb8a2e;
+  background: var(--evidence-sw);
+  color: var(--evidence-sw-text);
+}
+.text-highlight.overlap {
+  background: #f0f3f5;
+  color: #243541;
+  box-shadow:
+    inset 0 -3px var(--evidence-sw),
+    inset 0 -6px var(--evidence-tg);
+  padding-bottom: 4px;
 }
 .text-highlight.search {
-  background: #f9ec88;
-  box-shadow: inset 0 -2px #9b8421;
+  outline: 2px dotted currentColor;
+  outline-offset: -1px;
+}
+.text-highlight.search:not(.tg):not(.sw) {
+  background: #edf1f3;
+  color: #243541;
+}
+.text-highlight[data-evidence-ids]:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: -1px;
+}
+.full-text .evidence-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem 1.25rem;
+  padding: 16px 0 6px;
+  white-space: normal;
+  font:
+    0.875rem/1.6 "DM Sans",
+    system-ui,
+    sans-serif;
+  color: #4c6371;
+}
+.evidence-legend > span {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.4rem;
+}
+.evidence-legend mark {
+  padding-left: 0.25rem;
+  padding-right: 0.25rem;
 }
 .record-notes {
   margin-top: 24px;
