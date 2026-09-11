@@ -334,7 +334,7 @@ function App() {
           <section className="introduction">
             <div>
               <p className="eyebrow">A RESEARCH EXPLORER</p>
-              <h1>The Golden Age in parliamentary debate.</h1>
+              <h1>The Dutch "Gouden Eeuw" in Parliamentary Debate</h1>
               <p>
                 How does a remembered past become a political argument? Explore
                 the uses of the <i>Gouden Eeuw</i>, with Dutch speeches and
