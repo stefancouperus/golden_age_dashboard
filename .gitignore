@@ -15,3 +15,6 @@ dist/
 .env
 .env.*
 !.env.example
+
+# Retired public download; the source snapshot remains in data/research.
+public/data/research.csv

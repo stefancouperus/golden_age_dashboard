@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
+import { readFileSync, existsSync } from "node:fs";
 import { createHash } from "node:crypto";
 import { execFileSync } from "node:child_process";
 import {
@@ -14,7 +14,6 @@ import {
   matrixStyle,
   parseState,
   prepareSpeeches,
-  selectionCSV,
   serializeState,
   textSegments,
   validateFilters,
@@ -50,9 +49,9 @@ test("website uses the exact updated research snapshot, with all texts and ident
     createHash("sha256").update(original).digest("hex"),
     corpus.source.sha256,
   );
-  assert.deepEqual(
-    original,
-    readFileSync(new URL("../public/data/research.csv", import.meta.url)),
+  assert.equal(
+    existsSync(new URL("../public/data/research.csv", import.meta.url)),
+    false,
   );
   const source = new Map(
     csvRows(original.toString()).map((s) => [s.speech_id, s]),
@@ -250,6 +249,8 @@ test("shared URLs restore all selections and survive repository or custom-domain
       new URL(root).pathname + "data/corpus.json",
     );
   }
+  assert.equal(parseState("page=data&tg=TG2").page, "methods");
+  assert.deepEqual(parseState("page=data&tg=TG2").tg, ["TG2"]);
   assert.equal(parseState("from=1800&to=2300").from, 1945);
   assert.equal(parseState("from=1950.4").from, 1950);
   assert.equal(parseState("from=2020&to=1950").to, 2020);
@@ -280,25 +281,6 @@ test("timeline and complete matrix reconcile with the filtered results, includin
       rows.length,
     );
   }
-});
-
-test("filtered CSV round-trips quotes, newlines, full text and evidence pairs", () => {
-  const rows = filterSpeeches(speeches, {
-    ...INITIAL,
-    roles: ["senator", "mep"],
-  });
-  const exported = csvRows(selectionCSV(rows));
-  assert.equal(exported.length, 2);
-  rows.forEach((s, i) => {
-    assert.equal(exported[i].text, s.text);
-    assert.equal(exported[i].speaker, s.speaker);
-    assert.equal(exported[i].sample_scope_note, s.scopeNote);
-    assert.equal(
-      exported[i].temporal_grammar_evidence_en,
-      s.evidence.tg.map((e) => e.en).join(" || "),
-    );
-    assert.equal(exported[i].source_url, s.source);
-  });
 });
 
 test("evidence highlights retain original offsets and never alter the source text", () => {

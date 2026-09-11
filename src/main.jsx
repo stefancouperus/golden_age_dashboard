@@ -9,12 +9,12 @@ import {
   number,
   parseState,
   prepareSpeeches,
-  selectionCSV,
   serializeState,
   validateFilters,
 } from "./domain.js";
 import {
   ActiveFilters,
+  AuthorLinks,
   Code,
   Filters,
   Information,
@@ -142,22 +142,11 @@ function App() {
     copy(
       `${location.origin}${location.pathname}${location.search}#${serializeState({ ...state, page: "explore", ...(speech ? { speech } : {}) })}`,
     );
-  function download() {
-    const blob = new Blob([selectionCSV(rows)], {
-      type: "text/csv;charset=utf-8",
-    });
-    const href = URL.createObjectURL(blob),
-      link = document.createElement("a");
-    link.href = href;
-    link.download = "golden-age-selection.csv";
-    link.click();
-    setTimeout(() => URL.revokeObjectURL(href), 1000);
-  }
   useEffect(() => {
     document.title =
       state.page === "explore"
         ? "Golden Age Politics — Explore Dutch parliamentary speech"
-        : `${state.page === "methods" ? "About & methods" : "Data & citation"} — Golden Age Politics`;
+        : "About & methods — Golden Age Politics";
   }, [state.page]);
   // Optional WebMCP surface shares the interface's filter actions. Browsers
   // without this proposed API use the ordinary controls without a polyfill.
@@ -169,15 +158,13 @@ function App() {
       return {
         count: matches.length,
         filters: current,
-        speeches: matches
-          .slice(0, 20)
-          .map((s) => ({
-            id: s.id,
-            speaker: s.speaker,
-            date: s.date,
-            tg: s.tg,
-            sw: s.sw,
-          })),
+        speeches: matches.slice(0, 20).map((s) => ({
+          id: s.id,
+          speaker: s.speaker,
+          date: s.date,
+          tg: s.tg,
+          sw: s.sw,
+        })),
       };
     };
     const tools = [
@@ -328,7 +315,6 @@ function App() {
             {[
               ["explore", "Explore"],
               ["methods", "About & methods"],
-              ["data", "Data & citation"],
             ].map(([page, label]) => (
               <button
                 key={page}
@@ -376,8 +362,8 @@ function App() {
           <div className="notice error" role="alert">
             <h2>The explorer could not load</h2>
             <p>{error} Please reload to try again.</p>
-            <OutLink href="https://github.com/hjmschoonvelde/gouden_eeuw_project">
-              Read the research and download its data
+            <OutLink href="https://github.com/hjmschoonvelde/gouden_eeuw_project/blob/main/docs/methodology_extended.md">
+              Read the research methodology
             </OutLink>
           </div>
         ) : !data ? (
@@ -386,12 +372,7 @@ function App() {
             Loading the speeches and their evidence…
           </div>
         ) : state.page !== "explore" ? (
-          <Information
-            page={state.page}
-            source={data.source}
-            navigate={navigate}
-            copy={copy}
-          />
+          <Information navigate={navigate} copy={copy} />
         ) : (
           <div className="workspace" id="explorer">
             <button
@@ -441,13 +422,6 @@ function App() {
                 <div className="selection-actions">
                   <button className="text-button" onClick={() => share()}>
                     Share selection
-                  </button>
-                  <button
-                    className="button"
-                    disabled={!rows.length}
-                    onClick={download}
-                  >
-                    Download selection <span aria-hidden="true">↓</span>
                   </button>
                 </div>
               </div>
@@ -568,12 +542,10 @@ function App() {
         )}
       </main>
       <footer className="site-footer">
-        <span>
-          Stefan Couperus & Martijn Schoonvelde · University of Groningen
-        </span>
-        <OutLink href="https://github.com/hjmschoonvelde/gouden_eeuw_project">
-          Research & data
-        </OutLink>
+        <div className="footer-authors">
+          <AuthorLinks />
+        </div>
+        <span>University of Groningen</span>
       </footer>
       {!readerOpen && feedback()}
     </>

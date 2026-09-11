@@ -12,7 +12,7 @@ test("research views render populated, exceptional and empty selections", async 
     appType: "custom",
   });
   try {
-    const { Reader, Filters, Patterns, Information, Timeline } =
+    const { Reader, Filters, Patterns, Information, Timeline, AuthorLinks } =
       await server.ssrLoadModule("/src/components.jsx");
     const corpus = JSON.parse(
       readFileSync(new URL("../public/data/corpus.json", import.meta.url)),
@@ -57,24 +57,19 @@ test("research views render populated, exceptional and empty selections", async 
     assert.match(reader, /Read the full Dutch speech/);
     assert.match(reader, /ENGLISH TRANSLATION/);
     assert(reader.includes(verbeek.biography));
-    assert.match(
-      render(Information, {
-        page: "methods",
-        source: corpus.source,
-        navigate: update,
-        copy: update,
-      }),
-      /572 candidate speeches/,
-    );
-    assert.match(
-      render(Information, {
-        page: "data",
-        source: corpus.source,
-        navigate: update,
-        copy: update,
-      }),
-      /href="\/data\/research.csv"/,
-    );
+    const about = render(Information, { navigate: update, copy: update });
+    assert.match(about, /572 candidate speeches/);
+    assert.match(about, /<h2>Authors<\/h2>/);
+    assert.match(about, /Data can be shared upon request/);
+    assert.doesNotMatch(about, /download=|Download|data\/research\.csv/);
+    const authors = render(AuthorLinks, {});
+    for (const url of [
+      "https://www.rug.nl/staff/s.couperus/",
+      "https://www.rug.nl/staff/martijn.schoonvelde/",
+    ]) {
+      assert(about.includes(url));
+      assert(authors.includes(url));
+    }
   } finally {
     await server.close();
   }

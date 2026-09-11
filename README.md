@@ -15,7 +15,8 @@ specific commit. The website does not apply correction overlays to the old RDS.
 - Explore a timeline and all 20 temporal-grammar × symbolic-work combinations.
 - Read paired evidence translations, coding rationales and full Dutch speeches.
 - Follow reviewed Parlement.com biographies and original parliamentary records.
-- Share a selection or individual speech by URL; download filtered or full CSV data.
+- Share a selection or individual speech by URL.
+- Find the authors’ University of Groningen profiles and data-request information under About.
 
 Temporal grammar uses four distinct blues; symbolic work uses five amber/orange
 shades. Text labels identify every code. Government role and recorded party
@@ -66,6 +67,12 @@ The source is [`hjmschoonvelde/gouden_eeuw_project`](https://github.com/hjmschoo
 `data/derived/ge_final_45_24.csv`. The exact upstream commit and SHA-256 digest are
 recorded in [`data/research/source.json`](data/research/source.json).
 
+The dashboard offers no data downloads. Its About section states that data can
+be shared upon request and links to both authors’ University of Groningen profiles.
+The display data remain publicly served as JSON for the static explorer; removing
+download controls does not restrict access to existing public repository files
+or previously archived releases.
+
 To adopt a later research update explicitly:
 
 ```sh
@@ -86,7 +93,7 @@ All evidence pairs must be present. A future change to the analytical sample or
 coding scheme requires reviewing the exporter’s explicit invariants and tests.
 
 `gl` and `groenlinks` are combined under the displayed GroenLinks filter;
-`party_ref` remains unchanged in the downloadable data. Missing affiliation is
+`party_ref` remains unchanged in the source snapshot and website data. Missing affiliation is
 shown as “No affiliation recorded”, independently of speaking role.
 
 ## Project files
@@ -96,8 +103,8 @@ shown as “No affiliation recorded”, independently of speaking role.
 | `src/` | Interface, filtering, URL state, evidence reader and colours |
 | `scripts/` | Explicit research snapshot update and R-to-JSON export |
 | `data/research/` | Exact versioned upstream CSV and provenance |
-| `public/data/` | Website JSON and byte-identical research CSV download |
-| `tests/*.test.js` | Preservation, filters, exports, evidence alignment and component checks |
+| `public/data/` | Website JSON used by the explorer |
+| `tests/*.test.js` | Preservation, filters, evidence alignment and component checks |
 | `docs/static-dashboard.md` | Implementation and validation record |
 
 The legacy `app.R`, R environment, root data files and earlier metadata audits

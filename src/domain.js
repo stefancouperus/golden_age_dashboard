@@ -120,8 +120,9 @@ export function parseState(hash = "") {
   state.sw = state.sw.filter((x) => SW.some((c) => c.id === x));
   state.roles = state.roles.filter((x) => x in ROLES);
   state.view = p.get("view") === "patterns" ? "patterns" : "speeches";
+  // Previously shared data-page URLs now lead to the note in About.
   state.page = ["methods", "data"].includes(p.get("page"))
-    ? p.get("page")
+    ? "methods"
     : "explore";
   state.sort = p.get("sort") === "oldest" ? "oldest" : "newest";
   return state;
@@ -297,67 +298,8 @@ export function textSegments(text, ranges) {
   const bounds = [
     ...new Set([0, text.length, ...ranges.flatMap((r) => [r.start, r.end])]),
   ].sort((a, b) => a - b);
-  return bounds
-    .slice(0, -1)
-    .map((start, i) => ({
-      text: text.slice(start, bounds[i + 1]),
-      marked: ranges.some((r) => r.start <= start && r.end >= bounds[i + 1]),
-    }));
-}
-export function selectionCSV(rows) {
-  const columns = [
-    "speech_id",
-    "date",
-    "speaker",
-    "speaker_person_id",
-    "party",
-    "party_ref",
-    "role",
-    "speaking_capacity",
-    "parliamentary_group_as_recorded",
-    "temporal_grammar_code",
-    "symbolic_work_code",
-    "temporal_grammar_rationale",
-    "symbolic_work_rationale",
-    "temporal_grammar_evidence_nl",
-    "temporal_grammar_evidence_en",
-    "symbolic_work_evidence_nl",
-    "symbolic_work_evidence_en",
-    "speaker_profile_url",
-    "source_url",
-    "sample_scope_note",
-    "speaker_original",
-    "speaker_source_label",
-    "text",
-  ];
-  const values = rows.map((s) => [
-    s.id,
-    s.date,
-    s.speaker,
-    s.speakerId,
-    s.partyLabel,
-    s.partyRef,
-    s.role,
-    s.capacity,
-    s.group,
-    s.tg,
-    s.sw,
-    s.tgRationale,
-    s.swRationale,
-    s.evidence.tg.map((e) => e.nl).join(" || "),
-    s.evidence.tg.map((e) => e.en).join(" || "),
-    s.evidence.sw.map((e) => e.nl).join(" || "),
-    s.evidence.sw.map((e) => e.en).join(" || "),
-    s.biography,
-    s.source,
-    s.scopeNote,
-    s.originalSpeaker,
-    s.sourceSpeaker,
-    s.text,
-  ]);
-  const quote = (x) => '"' + String(x ?? "").replaceAll('"', '""') + '"';
-  return (
-    "\ufeff" +
-    [columns, ...values].map((row) => row.map(quote).join(",")).join("\r\n")
-  );
+  return bounds.slice(0, -1).map((start, i) => ({
+    text: text.slice(start, bounds[i + 1]),
+    marked: ranges.some((r) => r.start <= start && r.end >= bounds[i + 1]),
+  }));
 }

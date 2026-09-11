@@ -65,6 +65,7 @@ speeches <- lapply(seq_len(nrow(df)), function(i) list(
 payload <- list(schemaVersion = 1L, source = source_manifest, period = c(1945L, 2024L), speeches = speeches)
 dir.create("public/data", recursive = TRUE, showWarnings = FALSE)
 jsonlite::write_json(payload, "public/data/corpus.json", auto_unbox = TRUE, pretty = FALSE, na = "null")
-file.copy(input, "public/data/research.csv", overwrite = TRUE)
+# Remove the retired CSV download if an older export left it behind.
+if (file.exists("public/data/research.csv")) unlink("public/data/research.csv")
 cat("Exported", length(speeches), "speeches and paired evidence for", length(unique(df$speaker_person_id)), "people from the updated research CSV.\n")
 cat("Corpus JSON:", round(file.info("public/data/corpus.json")$size / 1e6, 2), "MB.\n")

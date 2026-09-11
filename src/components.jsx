@@ -573,14 +573,12 @@ export function Reader({
     setHighlight({ family, query });
     details.current.open = true;
     requestAnimationFrame(() =>
-      body.current
-        ?.querySelector("mark")
-        ?.scrollIntoView({
-          block: "center",
-          behavior: matchMedia("(prefers-reduced-motion: reduce)").matches
-            ? "instant"
-            : "smooth",
-        }),
+      body.current?.querySelector("mark")?.scrollIntoView({
+        block: "center",
+        behavior: matchMedia("(prefers-reduced-motion: reduce)").matches
+          ? "instant"
+          : "smooth",
+      }),
     );
   }
   return (
@@ -739,188 +737,144 @@ export function MobileReader({ speech, close, children }) {
     </dialog>
   );
 }
-export function Information({ page, source, navigate, copy }) {
-  if (page === "methods")
-    return (
-      <section className="information-page">
-        <p className="eyebrow">ABOUT & METHODS</p>
-        <h1>Reading political uses of the past.</h1>
-        <p className="lead">
-          The “Golden Age” is more than a name for a historical period. In a
-          political argument, it can become a model to restore, a legacy to
-          defend, or a memory to challenge.
-        </p>
-        <div className="information-grid">
-          <div>
-            <h2>The research</h2>
-            <p>
-              This explorer accompanies research by Stefan Couperus and Martijn
-              Schoonvelde at the University of Groningen on the{" "}
-              <i>Gouden Eeuw</i> as a mnemonic trope in Dutch parliamentary
-              speech.
-            </p>
-            <p>
-              A dictionary and word-embedding retrieval workflow identified 572
-              candidate speeches. The analytic sample contains 447 contributions
-              in which a Golden Age reference does argumentative, evaluative or
-              identity work. Each received one primary temporal-grammar code and
-              one symbolic-work code, using LLM-assisted coding with documented
-              human validation.
-            </p>
-            <h2>Scope and interpretation</h2>
-            <p>
-              The intended scope is Tweede Kamer debate from 1945 to 2024. The
-              earliest included contribution is from 1946. Government speakers
-              and one visiting MEP are represented alongside Tweede Kamer
-              members.
-            </p>
-            <p>
-              One Eerste Kamer contribution by Jan Verbeek on 1 May 1984 remains
-              provisionally included pending a separate scope decision, with a
-              visible note. This does not expand the intended scope of the
-              study.
-            </p>
-            <p>
-              Counts and percentages describe this selected sample. They do not
-              measure a party's or a year's rate of Golden Age references in the
-              full parliamentary corpus. Recorded affiliation does not establish
-              that a speaker represents that party's position.
-            </p>
-            <OutLink href="https://github.com/hjmschoonvelde/gouden_eeuw_project/blob/main/docs/methodology_extended.md">
-              Read the full methodology
-            </OutLink>
-          </div>
-          <aside className="method-note">
-            <h2>From a pattern to its evidence</h2>
-            <ol>
-              <li>Choose a period, speaker, party or coding category.</li>
-              <li>Inspect the timeline or a combination of codes.</li>
-              <li>Open a speech to read its evidence in Dutch and English.</li>
-              <li>Check the coding rationale and the original proceedings.</li>
-            </ol>
-            <p>
-              The original speech text is preserved, including OCR errors and
-              page headers. Evidence translations were prepared in advance.
-              Biographies link to reviewed Parlement.com profiles.
-            </p>
-            <button
-              className="button primary"
-              onClick={() => navigate("explore")}
-            >
-              Return to the explorer
-            </button>
-          </aside>
-        </div>
-        <section className="codebook">
-          <h2>The two coding dimensions</h2>
-          <div className="codebook-columns">
-            <div>
-              <h3>Temporal grammar</h3>
-              <p>How does the speech connect past, present and future?</p>
-              {TG.map((c) => (
-                <div className="code-definition" key={c.id}>
-                  <Code id={c.id} />
-                  <p>{c.meaning}</p>
-                </div>
-              ))}
-            </div>
-            <div>
-              <h3>Symbolic work</h3>
-              <p>What does invoking that past do in the argument?</p>
-              {SW.map((c) => (
-                <div className="code-definition" key={c.id}>
-                  <Code id={c.id} />
-                  <p>{c.meaning}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-          <p className="method-small">
-            The residual temporal-grammar category TG5 is excluded from the
-            analytic sample. The four SW5 “Other” contributions remain included.
-            Contests over the meaning or ownership of “Gouden Eeuw” take
-            priority as TG4; symbolic work is classified by the dominant target
-            of the argument.
-          </p>
-          <OutLink href="https://github.com/hjmschoonvelde/gouden_eeuw_project/blob/main/docs/codebook.md">
-            Read the research codebook
-          </OutLink>
-        </section>
-      </section>
-    );
+export function AuthorLinks() {
+  return (
+    <>
+      <OutLink href="https://www.rug.nl/staff/s.couperus/">
+        Stefan Couperus
+      </OutLink>
+      <OutLink href="https://www.rug.nl/staff/martijn.schoonvelde/">
+        Martijn Schoonvelde
+      </OutLink>
+    </>
+  );
+}
+export function Information({ navigate, copy }) {
   return (
     <section className="information-page">
-      <p className="eyebrow">DATA & CITATION</p>
-      <h1>Follow the research. Reuse the data.</h1>
+      <p className="eyebrow">ABOUT & METHODS</p>
+      <h1>Reading political uses of the past.</h1>
       <p className="lead">
-        Explore and reuse the 447 coded contributions, with reviewed speaker
-        identities and links to the original proceedings.
+        The “Golden Age” is more than a name for a historical period. In a
+        political argument, it can become a model to restore, a legacy to
+        defend, or a memory to challenge.
       </p>
       <div className="information-grid">
         <div>
-          <h2>Download the data</h2>
+          <h2>The research</h2>
           <p>
-            The full analytic dataset contains all 447 coded contributions. To
-            download a filtered selection with its paired evidence translations,
-            use “Download selection” in the explorer.
+            This explorer examines the <i>Gouden Eeuw</i> as a mnemonic trope in
+            Dutch parliamentary speech.
           </p>
-          <a
-            className="button primary"
-            href={`${import.meta.env.BASE_URL}data/research.csv`}
-            download="golden-age-research-data.csv"
-          >
-            Download full research CSV <span aria-hidden="true">↓</span>
-          </a>
-          <div className="data-links">
-            <OutLink href={source.url}>
-              Exact research dataset used here
-            </OutLink>
-            <OutLink href={source.repository}>
-              Research and reproduction materials
-            </OutLink>
-            <OutLink href="https://github.com/hjmschoonvelde/gouden_eeuw_project/blob/main/docs/speaker_links.md">
-              Speaker identities and biography review
-            </OutLink>
-            <OutLink href="https://github.com/hjmschoonvelde/gouden_eeuw_project/blob/main/docs/metadata_corrections.md">
-              Metadata and scope notes
-            </OutLink>
-          </div>
-          <h2>Cite the study</h2>
-          <p className="citation">{researchCitation}</p>
-          <button
-            className="button"
-            onClick={() => copy(researchCitation, "Citation copied")}
-          >
-            Copy citation
-          </button>
+          <p>
+            A dictionary and word-embedding retrieval workflow identified 572
+            candidate speeches. The analytic sample contains 447 contributions
+            in which a Golden Age reference does argumentative, evaluative or
+            identity work. Each received one primary temporal-grammar code and
+            one symbolic-work code, using LLM-assisted coding with documented
+            human validation.
+          </p>
+          <h2>Scope and interpretation</h2>
+          <p>
+            The intended scope is Tweede Kamer debate from 1945 to 2024. The
+            earliest included contribution is from 1946. Government speakers and
+            one visiting MEP are represented alongside Tweede Kamer members.
+          </p>
+          <p>
+            One Eerste Kamer contribution by Jan Verbeek on 1 May 1984 remains
+            provisionally included pending a separate scope decision, with a
+            visible note. This does not expand the intended scope of the study.
+          </p>
+          <p>
+            Counts and percentages describe this selected sample. They do not
+            measure a party's or a year's rate of Golden Age references in the
+            full parliamentary corpus. Recorded affiliation does not establish
+            that a speaker represents that party's position.
+          </p>
+          <OutLink href="https://github.com/hjmschoonvelde/gouden_eeuw_project/blob/main/docs/methodology_extended.md">
+            Read the full methodology
+          </OutLink>
+          <h2>Data note</h2>
+          <p>
+            Data can be shared upon request. Please contact either author
+            through their University of Groningen profile.
+          </p>
+          <details className="rationale study-citation">
+            <summary>Cite the study</summary>
+            <p className="citation">{researchCitation}</p>
+            <button
+              className="button"
+              onClick={() => copy(researchCitation, "Citation copied")}
+            >
+              Copy citation
+            </button>
+          </details>
         </div>
         <aside className="method-note">
-          <h2>Source and version</h2>
+          <h2>Authors</h2>
+          <div className="author-links">
+            <AuthorLinks />
+          </div>
           <p>
-            The data are a fixed snapshot of the research repository. The
-            download preserves original corpus labels alongside reviewed speaker
-            identities.
+            European Politics and Society
+            <br />
+            University of Groningen
           </p>
+          <h2>From a pattern to its evidence</h2>
+          <ol>
+            <li>Choose a period, speaker, party or coding category.</li>
+            <li>Inspect the timeline or a combination of codes.</li>
+            <li>Open a speech to read its evidence in Dutch and English.</li>
+            <li>Check the coding rationale and the original proceedings.</li>
+          </ol>
           <p>
-            <OutLink href={`${source.repository}/commit/${source.commit}`}>
-              View this dataset version
-            </OutLink>
+            The original speech text is preserved, including OCR errors and page
+            headers. Evidence translations were prepared in advance. Biographies
+            link to reviewed Parlement.com profiles.
           </p>
-          <h2>Rights and attribution</h2>
-          <p>
-            The dashboard software is licensed under MIT. Parliamentary texts
-            and linked biographies remain subject to their original sources'
-            terms. Biography prose and photographs are not reproduced here.
-          </p>
-          <p>
-            Please cite the research when using the dataset and retain speech
-            identifiers when referring to individual contributions.
-          </p>
-          <button className="button" onClick={() => navigate("explore")}>
+          <button
+            className="button primary"
+            onClick={() => navigate("explore")}
+          >
             Return to the explorer
           </button>
         </aside>
       </div>
+      <section className="codebook">
+        <h2>The two coding dimensions</h2>
+        <div className="codebook-columns">
+          <div>
+            <h3>Temporal grammar</h3>
+            <p>How does the speech connect past, present and future?</p>
+            {TG.map((c) => (
+              <div className="code-definition" key={c.id}>
+                <Code id={c.id} />
+                <p>{c.meaning}</p>
+              </div>
+            ))}
+          </div>
+          <div>
+            <h3>Symbolic work</h3>
+            <p>What does invoking that past do in the argument?</p>
+            {SW.map((c) => (
+              <div className="code-definition" key={c.id}>
+                <Code id={c.id} />
+                <p>{c.meaning}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+        <p className="method-small">
+          The residual temporal-grammar category TG5 is excluded from the
+          analytic sample. The four SW5 “Other” contributions remain included.
+          Contests over the meaning or ownership of “Gouden Eeuw” take priority
+          as TG4; symbolic work is classified by the dominant target of the
+          argument.
+        </p>
+        <OutLink href="https://github.com/hjmschoonvelde/gouden_eeuw_project/blob/main/docs/codebook.md">
+          Read the research codebook
+        </OutLink>
+      </section>
     </section>
   );
 }
