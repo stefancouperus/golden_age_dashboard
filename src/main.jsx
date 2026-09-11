@@ -436,13 +436,15 @@ function App() {
                     aria-pressed={state.view === "speeches"}
                     onClick={() => update({ view: "speeches" })}
                   >
-                    Speeches
+                    <span className="view-tab-title">Speeches</span>
+                    <span className="view-tab-description">Read the evidence</span>
                   </button>
                   <button
                     aria-pressed={state.view === "patterns"}
                     onClick={() => update({ view: "patterns" })}
                   >
-                    Patterns
+                    <span className="view-tab-title">Patterns</span>
+                    <span className="view-tab-description">Explore combinations</span>
                   </button>
                 </div>
                 {state.view === "speeches" && (
