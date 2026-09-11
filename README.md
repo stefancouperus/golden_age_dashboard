@@ -1,6 +1,6 @@
 # "Golden Age" Politics Dashboard
 
-Interactive R Shiny dashboard for exploring how speakers in Dutch parliamentary debate used
+Interactive dashboard for exploring how speakers in Dutch parliamentary debate used
 the *Gouden Eeuw* ("Golden Age") as a mnemonic trope between 1945 and 2024.
 
 The dashboard presents 447 coded speeches retrieved from a corpus of roughly
