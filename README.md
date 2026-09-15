@@ -119,11 +119,11 @@ service has not been redeployed by this migration:
 
 ## Research and citation
 
-> Couperus, Stefan, and Martijn Schoonvelde. “Golden Age Politics: A
-> Computational-Interpretive Analysis of the ‘Gouden Eeuw’ as a Trope in Dutch
-> Parliamentary Speech, 1945–2024.” Forthcoming in *Revived Futures: The Turn
-> to the Past in European Party Politics*, edited by Katarina Pettersson,
-> Katarina Eriksson, and Monika Menke. Palgrave Macmillan, 2026.
+> Couperus, S., & Schoonvelde, M. (2026). Golden age politics: A
+> computational-interpretive analysis of the “Gouden Eeuw” as a trope in Dutch
+> parliamentary speech, 1945–2024. In K. Pettersson, K. Eriksson, & M. Menke
+> (Eds.), *Revived futures: The turn to the past in European politics*.
+> Palgrave Macmillan.
 
 Both authors are affiliated with the University of Groningen.
 Software citation metadata are provided in [`CITATION.cff`](CITATION.cff).

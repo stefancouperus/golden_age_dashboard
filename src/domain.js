@@ -222,7 +222,7 @@ export const matrixCounts = (rows) =>
     SW.map((w) => rows.filter((s) => s.tg === t.id && s.sw === w.id).length),
   );
 export const researchCitation =
-  "Couperus, Stefan, and Martijn Schoonvelde. “Golden Age Politics: A Computational-Interpretive Analysis of the ‘Gouden Eeuw’ as a Trope in Dutch Parliamentary Speech, 1945–2024.” Forthcoming in Revived Futures: The Turn to the Past in European Party Politics, edited by Katarina Pettersson, Katarina Eriksson, and Monika Menke. Palgrave Macmillan, 2026.";
+  "Couperus, S., & Schoonvelde, M. (2026). Golden age politics: A computational-interpretive analysis of the “Gouden Eeuw” as a trope in Dutch parliamentary speech, 1945–2024. In K. Pettersson, K. Eriksson, & M. Menke (Eds.), Revived futures: The turn to the past in European politics. Palgrave Macmillan.";
 export function validateFilters(input, speeches) {
   if (!input || typeof input !== "object" || Array.isArray(input))
     throw Error("Supply a filter object.");
